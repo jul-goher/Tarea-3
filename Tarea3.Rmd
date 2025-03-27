@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-#Características del objeto phyloseq
+# Características del objeto phyloseq
 
 
 ```{r}
@@ -24,10 +24,16 @@ Según lo expuesto por la salida 'sample_data()' , el objeto diestswap contiene 
 'tax_table()' indica que exiten 13w0 taxones 
 
 2. ¿Qué variables están disponibles en los metadatos de las muestras?
+Exiten las variables 
 
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+# Curvas de rarefacción
+
+```{r}
+
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+1. ¿Qué indican estas curvas?
+
+2. ¿Hay muestras que deberían descartarse por bajo conteo?
