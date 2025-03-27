@@ -1,0 +1,33 @@
+---
+title: "Tarea 3"
+author: "Julieta González"
+date: "2025-03-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Características del objeto phyloseq
+
+
+```{r}
+data("dietswap", package = "microbiome")
+ps <- dietswap
+ps
+
+```
+
+1. ¿Cuántas muestras y taxones contiene el objeto?
+Según lo expuesto por la salida 'sample_data()' , el objeto diestswap contiene 222 muestras.
+'tax_table()' indica que exiten 13w0 taxones 
+
+2. ¿Qué variables están disponibles en los metadatos de las muestras?
+
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
