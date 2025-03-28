@@ -21,7 +21,7 @@ ps
 
 1. ¿Cuántas muestras y taxones contiene el objeto?
 
-Según lo expuesto por los datos indicados en la consola `sample_data()` , el objeto diestswap contiene 222 muestras, también, `tax_table()` indica que exiten 130 taxones 
+Según lo expuesto por los datos indicados en la consola `sample_data()` , el objeto diestswap contiene 222 muestras, también, `tax_table()` indica que exiten 130 especies/taxones.  
 
 Si bien esta información es dada una vez que se imprime el objeto phyloseq en consola, puede ser comprobado individualmente utilizando las funciones `nsamples ()` y `ntaxa ()`. 
 
@@ -46,15 +46,43 @@ Mediante el uso de 'sample_variables ()' sobre el objeto phylosq es posible viis
 * bmi_group
 
 ```{r}
-
 sample_variables (ps)
-
 ```
 
 
 # Curvas de rarefacción
 
 ```{r}
+#Eliminar taxones de poca abundancia
+ps_sin <- prune_taxa (taxa_sums(ps) > 1, ps) 
+
+#Verificar los taxones con menos lecturas 
+cuenta_lecturas <- data.table(as(sample_data(ps_sin), "data.frame"),
+                        TotalReads = sample_sums(ps_sin), 
+                        keep.rownames = TRUE) #Crea una tabla
+
+setnames (cuenta_lecturas, "rn", "SampleID")
+
+ggplot (cuenta_lecturas, aes(TotalReads)) + geom_histogram() + ggtitle("Cobertura Secuenciación")
+#El histograma nos indica la distribución de las lecturas en las muestras
+#Es posible ver wue hay muestras que tienen muy pocas lecturas
+
+head(cuenta_lecturas[order(cuenta_lecturas$TotalReads), c("SampleID", "TotalReads")])
+#Da una tabla que ordene los conteos de lectura más bajos
+#Con esta tabla, vemos que la muestra 56 tiene la menor cantidad de lecturas con 1,776 lecturas
+
+## Curva de rarefacción 
+otu_cr <- otu_table (ps_sin) #Extraer la tabla de abundancias de los OTUs del objeto phyloseq
+otu_cr <- as.data.frame (t(otu_cr)) #Cambiar a un data frame
+sample_names <- rownames (otu_cr) #Añadir nombres según los renglones del data-frame
+
+# Step es un intervalo en el que se calcula la riqueza conforme añade lecturas
+# Define cuantas lecturas se añaden en incrementos x al realizar la curva
+# En este caso elegí 200 ya que computaba más rápido que a 100
+
+otu.rarecurve = rarecurve (otu_cr, step = 200)
+#Eje-y -> riqueza de las especies
+#Eje-x -> cobertura 
 
 
 ```
@@ -69,6 +97,7 @@ Las curvas nos indican que hubo un muestreo
 
 Sí, según lo evaluado con el código 
 podemos entender que para 7 muestras no hay un 
+eliminar aquellas muestras
 
 
 

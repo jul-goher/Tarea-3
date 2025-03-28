@@ -24,66 +24,64 @@ sample_variables (ps)
                   #####################
 #####             Curvas de rarefacción               #####
                   #####################
-#Para hacer la curva, primero se debe de extraer la tabla de OTUs del objeto ps
-otu_cr <- otu_table(ps)
-otu_cr
-#Cambiar a un data frame
-otu_cr <- as.data.frame (t(otu_cr))
-#Añadir nombres según los renglones del data-frame
-sample_names <- rownames(otu_cr)
-#Crear la curva de rarefacción
-otu.rarecurve = rarecurve (otu_cr, step = 30)
-#Dibujan una curva de rarefacción para cada renglón del input data. 
-#Step es un intervalo en el que se calcula la riqueza conforme añade lecturas
+#Cargar paquetes
+library(ggplot2)
+library(data.table)
 
+#Eliminar taxones menores a 1
+ps_sin <- prune_taxa (taxa_sums(ps) > 1, ps) 
 
-### Selección del número correcto de step 
-lect_totales <- rowSums(t(otu_cr)) #lecturas totales de cada muestra, que están en los renglones
-#Para evitar seleccionar muestras donde hay 0 reads
-#Tengo que calcular las lecturas totales:
-summary(lect_totales)
-#El resumen permite visualizar el mínimo de reads, que es 0
-#El máximo de reads es 873314 según este resumen 
+#Verificar los taxones con menos lecturas 
+cuenta_lecturas <- data.table(as(sample_data(ps_sin), "data.frame"),
+                        TotalReads = sample_sums(ps_sin), 
+                        keep.rownames = TRUE) #Crea una tabla
 
-#Eliminar los 0 de la tabla de abundancias
-# para saber cuantas de esas lecturas totales son igual a 0
-sum(lect_totales == 0)
-#Indica que 7 muestras tienen un valor de 0
+setnames (cuenta_lecturas, "rn", "SampleID")
 
-ps_sin <- any (ps > 0) #esto está mal 
+ggplot (cuenta_lecturas, aes(TotalReads)) + geom_histogram() + ggtitle("Cobertura Secuenciación")
+#El histograma nos indica la distribución de las lecturas en las muestras
+#Es posible ver wue hay muestras que tienen muy pocas lecturas
 
+#Tabla que ordene los conteos de lectura más bajos
+head(cuenta_lecturas[order(cuenta_lecturas$TotalReads), c("SampleID", "TotalReads")])
+#Con esta tabla, vemos que la muestra 56 tiene la menor cantidad de lecturas con 1,776 lecturas
 
-otu_cr <- otu_table(ps_filtered)
-muest_totales <- rowSums(t(otu_cr))
+## Curva de rarefacción 
+otu_cr <- otu_table (ps_sin) #extrar la tabla de abundancias de los OTUs del objeto phyloseq
+otu_cr <- as.data.frame (t(otu_cr)) #Cambiar a un data frame
+sample_names <- rownames (otu_cr) #Añadir nombres según los renglones del data-frame
 
+# Step es un intervalo en el que se calcula la riqueza conforme añade lecturas
+# Step define cuantas lecturas se añaden en incrementos x al realizar la curva
+# En este caso elegí 200 ya que computaba más rápido que a 100
 
-#lect_totales
-#min(lect_totales)
+otu.rarecurve = rarecurve (otu_cr, step = 200, label=FALSE)
+#Eje-y -> riqueza de las especies
+#Eje-x -> cobertura 
 
-
-
-
-#Curva de rarefacción 2
-pdf("Genomica Funcional/Tarea-3/curva_rarefaccion", width=13,height = 8)
+#Guardar la curva
+pdf("Figuras/curva_rarefaccion.pdf", width = 13, height = 8)
+otu.rarecurve = rarecurve (otu_cr, step = 200)
 dev.off()
 
-#
-
-
-
-
-
 #Apoyo: https://search.r-project.org/CRAN/refmans/vegan/html/rarefy.html
-
+#
                   ################
 #####             Diversidad alpha               #####
                   ################
 #Calcula y grafica:
 # Riqueza observada 
+plot_richness (ps_sin,x ="nationality")
+
 
 # ínidce de Shannon 
+plot_richness(ps_sin, x = "nationality",measures = ("Shannon"))
+
 
 # índice de Simpson
+plot_richness(ps_sin, x = "nationality",measures = ("Simpson"))
+
+
 
                 #########################
 #####           Filtrado y Transformación         #####
