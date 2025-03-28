@@ -53,6 +53,9 @@ sample_variables (ps)
 # Curvas de rarefacción
 
 ```{r}
+library(ggplot2)
+library(data.table)
+
 #Eliminar taxones de poca abundancia
 ps_sin <- prune_taxa (taxa_sums(ps) > 1, ps) 
 
@@ -63,13 +66,9 @@ cuenta_lecturas <- data.table(as(sample_data(ps_sin), "data.frame"),
 
 setnames (cuenta_lecturas, "rn", "SampleID")
 
-ggplot (cuenta_lecturas, aes(TotalReads)) + geom_histogram() + ggtitle("Cobertura Secuenciación")
-#El histograma nos indica la distribución de las lecturas en las muestras
-#Es posible ver wue hay muestras que tienen muy pocas lecturas
-
+## Tabla de conteos
 head(cuenta_lecturas[order(cuenta_lecturas$TotalReads), c("SampleID", "TotalReads")])
-#Da una tabla que ordene los conteos de lectura más bajos
-#Con esta tabla, vemos que la muestra 56 tiene la menor cantidad de lecturas con 1,776 lecturas
+#Ordena los conteos de lectura más bajos
 
 ## Curva de rarefacción 
 otu_cr <- otu_table (ps_sin) #Extraer la tabla de abundancias de los OTUs del objeto phyloseq
@@ -90,30 +89,45 @@ otu.rarecurve = rarecurve (otu_cr, step = 200)
 1. ¿Qué indican estas curvas?
 
 Las curvas de rarefacción son indicativas de un muestreo adecuado cuando la curva llegan a la asíntota una vez que no hay decubrimiento de nuevas especies en el muestreo. Se genera una curva por cada uno de los renglones de los datos de entrada, que en este caso es el data.frame. 
-Las curvas nos indican que hubo un muestreo 
+Las curvas nos indican que hubo un muestreo suficiente. 
 
 
 2. ¿Hay muestras que deberían descartarse por bajo conteo?
-
-Sí, según lo evaluado con el código 
-podemos entender que para 7 muestras no hay un 
-eliminar aquellas muestras
+Sí, según curva de rarefacción, se puede ver que la muestra 56 es la única no llega a una asíntota. Lo que corrobora lo mostrado en la tabla que ordena los conteos de lectura más bajos, donde vemos que la muestra 56 tiene la menor cantidad de lecturas con 1,776 lecturas, por lo que puede descartarse por el bajo conteo de lecturas 
 
 
 
 # Diversidad Alpha 
 ```{r}
-#Riqueza observada 
+#Riqueza observada + Índice de Shannon + Simpson 
 
-#ínidce de Shannon 
-
-#índice de Simpson
 
 
 ```
 
 1. ¿Qué interpretas de estas gráficas?
 
+
 2. ¿Hay diferencias notorias entre grupos?
+Sí, 
+
+
+#Filtrado y Transformación 
+
+```{r}
+
+```
+
+#Diversidad Beta
+
+1. ¿Los grupos se separan visiblemente?
+
+2. ¿Qué podría estar causando esas diferencias?
+
+
+
+
+
+
 
 

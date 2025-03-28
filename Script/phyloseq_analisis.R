@@ -40,7 +40,7 @@ setnames (cuenta_lecturas, "rn", "SampleID")
 
 ggplot (cuenta_lecturas, aes(TotalReads)) + geom_histogram() + ggtitle("Cobertura Secuenciación")
 #El histograma nos indica la distribución de las lecturas en las muestras
-#Es posible ver wue hay muestras que tienen muy pocas lecturas
+#Es posible ver que hay muestras que tienen muy pocas lecturas
 
 #Tabla que ordene los conteos de lectura más bajos
 head(cuenta_lecturas[order(cuenta_lecturas$TotalReads), c("SampleID", "TotalReads")])
@@ -70,16 +70,16 @@ dev.off()
 #####             Diversidad alpha               #####
                   ################
 #Calcula y grafica:
-# Riqueza observada 
-plot_richness (ps_sin,x ="nationality")
+# Riqueza observada + ínidce de Shannon & Simpson
+plot_richness (ps_sin, x = "nationality", measures = c("Observed", "Shannon", "Simpson") ) + 
+              geom_boxplot() + ggtitle ("Diversidad Alpha") + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 7) ) 
 
 
-# ínidce de Shannon 
-plot_richness(ps_sin, x = "nationality",measures = ("Shannon"))
+#plot_richness(ps_sin, x = "bmi_group", color = "nationality" , measures = c("Observed", "Shannon", "Simpson"))
+#plot_richness(ps_sin, x = "nationality", color = "sex" , measures = c("Observed", "Shannon", "Simpson"))
 
-
-# índice de Simpson
-plot_richness(ps_sin, x = "nationality",measures = ("Simpson"))
 
 
 
@@ -91,10 +91,33 @@ plot_richness(ps_sin, x = "nationality",measures = ("Simpson"))
 
 
 
-#####             Diversidad beta               #####
+
+                #########################
+#####                Diversidad beta              #####
+                #########################
 #Ordención PCoA utilizando distancia Bray-Curtis
+
+data (esophagus)
+distance(esophagus, "bray") 
+
+
 ordinate() 
 plot_ordination()
+
+
+my.physeq <- import("Biom", BIOMfilename="myBiomFile.biom")
+my.ord    <- ordinate(my.physeq)
+plot_ordination(my.physeq, my.ord, color="myFavoriteVarible")
+
+
+GloPa.pcoa = ordinate(GlobalPatterns, method="PCoA", distance=GPUF)
+
+            #########################
+#####         Gráfica Rank-abundance              #####
+            #########################
+
+
+
 
 
 
