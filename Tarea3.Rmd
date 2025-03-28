@@ -20,11 +20,36 @@ ps
 ```
 
 1. ¿Cuántas muestras y taxones contiene el objeto?
-Según lo expuesto por la salida 'sample_data()' , el objeto diestswap contiene 222 muestras.
-'tax_table()' indica que exiten 13w0 taxones 
+
+Según lo expuesto por los datos indicados en la consola `sample_data()` , el objeto diestswap contiene 222 muestras, también, `tax_table()` indica que exiten 130 taxones 
+
+Si bien esta información es dada una vez que se imprime el objeto phyloseq en consola, puede ser comprobado individualmente utilizando las funciones `nsamples ()` y `ntaxa ()`. 
+
+```{r}
+nsamples (ps) 
+ntaxa (ps) 
+
+```
+
 
 2. ¿Qué variables están disponibles en los metadatos de las muestras?
-Exiten las variables 
+
+Mediante el uso de 'sample_variables ()' sobre el objeto phylosq es posible viisualizar las variables, que incluyen:
+
+* subject
+* sex            
+* nationality
+* group
+* sample
+* timepoint
+* timepoint.within.group
+* bmi_group
+
+```{r}
+
+sample_variables (ps)
+
+```
 
 
 # Curvas de rarefacción
@@ -36,4 +61,30 @@ Exiten las variables
 
 1. ¿Qué indican estas curvas?
 
+Las curvas de rarefacción son indicativas de un muestreo adecuado cuando la curva llegan a la asíntota una vez que no hay decubrimiento de nuevas especies en el muestreo. Se genera una curva por cada uno de los renglones de los datos de entrada, que en este caso es el data.frame. 
+Las curvas nos indican que hubo un muestreo 
+
+
 2. ¿Hay muestras que deberían descartarse por bajo conteo?
+
+Sí, según lo evaluado con el código 
+podemos entender que para 7 muestras no hay un 
+
+
+
+# Diversidad Alpha 
+```{r}
+#Riqueza observada 
+
+#ínidce de Shannon 
+
+#índice de Simpson
+
+
+```
+
+1. ¿Qué interpretas de estas gráficas?
+
+2. ¿Hay diferencias notorias entre grupos?
+
+

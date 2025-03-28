@@ -368,18 +368,66 @@ ps</code></pre>
 ## sample_data() Sample Data:       [ 222 samples by 8 sample variables ]
 ## tax_table()   Taxonomy Table:    [ 130 taxa by 3 taxonomic ranks ]</code></pre>
 <ol style="list-style-type: decimal">
-<li><p>¿Cuántas muestras y taxones contiene el objeto? Según lo expuesto
-por la salida ‘sample_data()’ , el objeto diestswap contiene 222
-muestras. ‘tax_table()’ indica que exiten 13w0 taxones</p></li>
-<li><p>¿Qué variables están disponibles en los metadatos de las
-muestras? Exiten las variables</p></li>
+<li>¿Cuántas muestras y taxones contiene el objeto?</li>
 </ol>
+<p>Según lo expuesto por los datos indicados en la consola
+<code>sample_data()</code> , el objeto diestswap contiene 222 muestras,
+también, <code>tax_table()</code> indica que exiten 130 taxones</p>
+<p>Si bien esta información es dada una vez que se imprime el objeto
+phyloseq en consola, puede ser comprobado individualmente utilizando las
+funciones <code>nsamples ()</code> y <code>ntaxa ()</code>.</p>
+<pre class="r"><code>nsamples (ps) </code></pre>
+<pre><code>## [1] 222</code></pre>
+<pre class="r"><code>ntaxa (ps) </code></pre>
+<pre><code>## [1] 130</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li>¿Qué variables están disponibles en los metadatos de las
+muestras?</li>
+</ol>
+<p>Mediante el uso de ‘sample_variables ()’ sobre el objeto phylosq es
+posible viisualizar las variables, que incluyen:</p>
+<ul>
+<li>subject</li>
+<li>sex<br />
+</li>
+<li>nationality</li>
+<li>group</li>
+<li>sample</li>
+<li>timepoint</li>
+<li>timepoint.within.group</li>
+<li>bmi_group</li>
+</ul>
+<pre class="r"><code>sample_variables (ps)</code></pre>
+<pre><code>## [1] &quot;subject&quot;                &quot;sex&quot;                    &quot;nationality&quot;           
+## [4] &quot;group&quot;                  &quot;sample&quot;                 &quot;timepoint&quot;             
+## [7] &quot;timepoint.within.group&quot; &quot;bmi_group&quot;</code></pre>
 </div>
 <div id="curvas-de-rarefacción" class="section level1">
 <h1>Curvas de rarefacción</h1>
 <ol style="list-style-type: decimal">
-<li><p>¿Qué indican estas curvas?</p></li>
-<li><p>¿Hay muestras que deberían descartarse por bajo conteo?</p></li>
+<li>¿Qué indican estas curvas?</li>
+</ol>
+<p>Las curvas de rarefacción son indicativas de un muestreo adecuado
+cuando la curva llegan a la asíntota una vez que no hay decubrimiento de
+nuevas especies en el muestreo. Se genera una curva por cada uno de los
+renglones de los datos de entrada, que en este caso es el data.frame.
+Las curvas nos indican que hubo un muestreo</p>
+<ol start="2" style="list-style-type: decimal">
+<li>¿Hay muestras que deberían descartarse por bajo conteo?</li>
+</ol>
+<p>Sí, según lo evaluado con el código podemos entender que para 7
+muestras no hay un</p>
+</div>
+<div id="diversidad-alpha" class="section level1">
+<h1>Diversidad Alpha</h1>
+<pre class="r"><code>#Riqueza observada 
+
+#ínidce de Shannon 
+
+#índice de Simpson</code></pre>
+<ol style="list-style-type: decimal">
+<li><p>¿Qué interpretas de estas gráficas?</p></li>
+<li><p>¿Hay diferencias notorias entre grupos?</p></li>
 </ol>
 </div>
 
