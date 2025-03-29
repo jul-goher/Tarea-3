@@ -77,7 +77,8 @@ plot_richness (ps_sin, x = "nationality", measures = c("Observed", "Shannon", "S
   theme(axis.text.x = element_text(angle = 90, hjust = 7) ) 
 
 
-#plot_richness(ps_sin, x = "bmi_group", color = "nationality" , measures = c("Observed", "Shannon", "Simpson"))
+plot_richness(ps_sin, x = "bmi_group", color = "nationality" , measures = c("Observed", "Shannon", "Simpson")) +
+  geom_boxplot()
 #plot_richness(ps_sin, x = "nationality", color = "sex" , measures = c("Observed", "Shannon", "Simpson"))
 
 
@@ -86,7 +87,7 @@ plot_richness (ps_sin, x = "nationality", measures = c("Observed", "Shannon", "S
                 #########################
 #####           Filtrado y Transformación         #####
                 #########################
-#géneros más abundantes 
+#Géneros más abundantes 
 #Ej., los que tienen más del 0.1% de abundancia relativa en al menos 10% de las muestras
 
 

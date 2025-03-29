@@ -102,10 +102,23 @@ Sí, según curva de rarefacción, se puede ver que la muestra 56 es la única n
 #Riqueza observada + Índice de Shannon + Simpson 
 
 
+#División por grupo bmi 
 
 ```
 
 1. ¿Qué interpretas de estas gráficas?
+El estudio realizado por O´Keefe y colaboradores (2015), del que provienen los datoshacen referencia al un experimento donde se realizó un cambio de dieta entre afro-americanos y sudafricanos. 
+En base a las diversidades alfa calculadas, podemos inferir que existe una 
+mayor uniformidad en las especoes
+Simpson indica que 
+en los afroamericanos 
+aquellos con sobrepeso tienen una mayor 
+
+
+2-week food exchanges in subjects from the same populations, where African Americans were fed a high-fibre, low-fat African-style diet and rural Africans a high-fat, low-fibre western-style diet, under close supervision
+Del análiis de diversidad alfa podemos ver que 
+afro-americanos 
+vs africanos
 
 
 2. ¿Hay diferencias notorias entre grupos?
