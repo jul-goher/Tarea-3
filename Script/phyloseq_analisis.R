@@ -138,43 +138,48 @@ dev.off()
 #####         Gráfica Rank-abundance              #####
             #########################
 
-plot_rank_ab()
+# Abundancia total para definir el eje y 
+abund_total <- taxa_sums(ps_sin) #uso de taxa_sums como cuando se eliminaron los taxones menores a 1
+#Dice la abundancia de cada uno de los taxones 
+
+# Orden de mayor a menor
+abundancias_ordenadas <- sort (abund_total, decreasing = TRUE)
+# Generar números para cada uno de los taxones,según la longitud de abund_total
+secuencia_taxones <- seq_along (abund_total)
+# Crear un data.frame del objecto phyloseq 
+rank_df <- data.frame (
+  Abundancia = abundancias_ordenadas, 
+  Especies = secuencia_taxones
+)
 
 
+# Curva de rarefacción 
+rank_abundance <- ggplot (rank_df, aes(x = Especies, y = Abundancia, colour = Especies)) +
+  geom_point() +  #Puntos
+  geom_line() +   #Unión 
+  labs( title = "Rank-abundance", x = "Spp", y = "Abundance")
+
+print(rank_abundance)
 
 
-for (x in 1:7) {
-  spp1 <- datos[x,c(1:14)] # Seleccionar poblacion
-  spp1.1 <- as.data.frame(t(spp1[2:13])) # Cambiar orden de los valores
-  colnames(spp1.1) <- "Abundancia" # Nombrar col
-  
-  spp1.1 <- spp1.1 %>%
-    arrange(desc(Abundancia)) # Ordenar de forma decreciente
-  
-  spp1.1$spp <- c(1:length(spp1.1$Abundancia)) # Numerar spp
-  
-  spp1.1 <- spp1.1[spp1.1$Abundancia != 0, ] # Quitar spp NO presentes
-  
-  
-  rank_ab <- ggplot(spp1.1, aes(x = spp, y = Abundancia, colour = spp)) +
-    geom_point() +  # Puntos
-    geom_line() + # Linea de union
-    labs(title = "Rank-abundance", x = "Spp", y = "Abundancia")
-  print(rank_ab)
-}
-
+pdf("Figuras/rank_abundance.pdf", width = 13, height = 8)
+rank_abundance
+dev.off()
 
 
             ################################
 #####       Gráfica apliadada de abundancias      #####
             ################################
 
-#Gráficas apiladas de abundancia por taxón
-#Agrupa por phylum o género y grafica la composición de cada muestra como gráfica de barras apiladas.
-  
-plot_bar (myData, fill="Genus")
+#Gráficas apiladas de abundancia por taxón (género o phylum)
+#Agrupa y grafica la composición de cada muestra como gráfica de barras apiladas.
 
+phylum_apliada <- plot_bar(ps_sin, x = "nationality", y = "Abundance", fill = "Phylum") + 
+                geom_bar(aes(color=Phylum, fill=Phylum), stat="identity", position="stack")
 
+pdf("Figuras/abundancias_apiladas.pdf", width = 13, height = 8)
+phylum_apliada
+dev.off()
 
 
 
