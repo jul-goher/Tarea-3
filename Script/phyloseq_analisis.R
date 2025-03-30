@@ -79,31 +79,52 @@ plot_richness (ps_sin, x = "nationality", measures = c("Observed", "Shannon", "S
 
 plot_richness(ps_sin, x = "bmi_group", color = "nationality" , measures = c("Observed", "Shannon", "Simpson")) +
   geom_boxplot()
+
 #plot_richness(ps_sin, x = "nationality", color = "sex" , measures = c("Observed", "Shannon", "Simpson"))
 
+## Escribir la diversidad alpha en un csv 
+# Estimar la riqueza con una función  
+div_alpha <- estimate_richness (ps_sin, measures = c("Observed", "Shannon", "Simpson"))
 
+# Del objeto con los índices:
+div_alpha$nationality <- sample_data(ps_sin)$nationality
+#se utiliza el sample_data que se utilizó para extraer los metadatos del objeto phyloseq cuando se creó la tabla de lecturas 
+#Se elige $nationality porque sino devuelve todas las variables de las muestras 
+  
+# Escribir el csv
+write.csv(div_alpha, file = "Data/div_alpha.csv", row.names = TRUE)
+#Añadí row.names = TRUE porque sino no salen los nombres de las muestras 
 
 
                 #########################
 #####           Filtrado y Transformación         #####
                 #########################
 #Géneros más abundantes 
-#Ej., los que tienen más del 0.1% de abundancia relativa en al menos 10% de las muestras
+#Más del 0.1% de abundancia relativa en al menos 10% de las muestras
 
+#Código tomado y adaptado de: https://joey711.github.io/phyloseq/preprocess.html
+# y https://web.stanford.edu/class/bios221/labs/phyloseq/lab_phyloseq.html?utm
 
-
+ps_relativ  = transform_sample_counts (ps_sin, function(x) x / sum(x) )
+ps_filtr <- filter_taxa(ps_relativ, function(x) sum(x > 0.001) > (0.1 * length(x)), TRUE)
+ps_filtr
 
                 #########################
 #####                Diversidad beta              #####
                 #########################
 #Ordención PCoA utilizando distancia Bray-Curtis
 
-data (esophagus)
-distance(esophagus, "bray") 
+#data (ps_filtr) #no reconoce a ps_filter como un dataset por ser un objeto phyloseq 
+#distance(ps_filtr, "bray") no me funciona para este caso
 
+#Basado en: GloPa.pcoa = ordinate(GlobalPatterns, method="PCoA", distance=GPUF)
+# Función ordinate calcula la 
+ 
+ps_pcoa = ordinate (ps_filtr, method="PCoA", distance = "bray")
+ps_pcoa
 
-ordinate() 
-plot_ordination()
+#De (p12 <- plot_ordination(GlobalPatterns, GloPa.pcoa, "samples", color="SampleType") + 
+#geom_point(size=5) + geom_path() + scale_colour_hue(guide = FALSE) )
 
 
 my.physeq <- import("Biom", BIOMfilename="myBiomFile.biom")
@@ -111,7 +132,6 @@ my.ord    <- ordinate(my.physeq)
 plot_ordination(my.physeq, my.ord, color="myFavoriteVarible")
 
 
-GloPa.pcoa = ordinate(GlobalPatterns, method="PCoA", distance=GPUF)
 
             #########################
 #####         Gráfica Rank-abundance              #####
@@ -120,6 +140,15 @@ GloPa.pcoa = ordinate(GlobalPatterns, method="PCoA", distance=GPUF)
 
 
 
+            ################################
+#####       Gráfica apliadada de abundancias      #####
+            ################################
+
+#Gráficas apiladas de abundancia por taxón
+#Agrupa por phylum o género y grafica la composición de cada muestra como gráfica de barras apiladas.
+
+plot_bar()
+  
 
 
 

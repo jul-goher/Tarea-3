@@ -3,6 +3,9 @@ title: "Tarea 3"
 author: "Julieta González"
 date: "2025-03-27"
 output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r setup, include=FALSE}
@@ -11,7 +14,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Características del objeto phyloseq
 
-
 ```{r}
 data("dietswap", package = "microbiome")
 ps <- dietswap
@@ -19,11 +21,15 @@ ps
 
 ```
 
-1. ¿Cuántas muestras y taxones contiene el objeto?
+1.  ¿Cuántas muestras y taxones contiene el objeto?
 
-Según lo expuesto por los datos indicados en la consola `sample_data()` , el objeto diestswap contiene 222 muestras, también, `tax_table()` indica que exiten 130 especies/taxones.  
+Según lo expuesto por los datos indicados en la consola `sample_data()`
+, el objeto diestswap contiene 222 muestras, también, `tax_table()`
+indica que exiten 130 especies/taxones.
 
-Si bien esta información es dada una vez que se imprime el objeto phyloseq en consola, puede ser comprobado individualmente utilizando las funciones `nsamples ()` y `ntaxa ()`. 
+Si bien esta información es dada una vez que se imprime el objeto
+phyloseq en consola, puede ser comprobado individualmente utilizando las
+funciones `nsamples ()` y `ntaxa ()`.
 
 ```{r}
 nsamples (ps) 
@@ -31,24 +37,23 @@ ntaxa (ps)
 
 ```
 
+2.  ¿Qué variables están disponibles en los metadatos de las muestras?
 
-2. ¿Qué variables están disponibles en los metadatos de las muestras?
+Mediante el uso de 'sample_variables ()' sobre el objeto phylosq es
+posible viisualizar las variables, que incluyen:
 
-Mediante el uso de 'sample_variables ()' sobre el objeto phylosq es posible viisualizar las variables, que incluyen:
-
-* subject
-* sex            
-* nationality
-* group
-* sample
-* timepoint
-* timepoint.within.group
-* bmi_group
+-   subject
+-   sex\
+-   nationality
+-   group
+-   sample
+-   timepoint
+-   timepoint.within.group
+-   bmi_group
 
 ```{r}
 sample_variables (ps)
 ```
-
 
 # Curvas de rarefacción
 
@@ -79,68 +84,75 @@ sample_names <- rownames (otu_cr) #Añadir nombres según los renglones del data
 # Define cuantas lecturas se añaden en incrementos x al realizar la curva
 # En este caso elegí 200 ya que computaba más rápido que a 100
 
-otu.rarecurve = rarecurve (otu_cr, step = 200)
+curva <- otu.rarecurve = rarecurve (otu_cr, step = 200)
 #Eje-y -> riqueza de las especies
 #Eje-x -> cobertura 
 
 
 ```
 
-1. ¿Qué indican estas curvas?
+1.  ¿Qué indican estas curvas?
 
-Las curvas de rarefacción son indicativas de un muestreo adecuado cuando la curva llegan a la asíntota una vez que no hay decubrimiento de nuevas especies en el muestreo. Se genera una curva por cada uno de los renglones de los datos de entrada, que en este caso es el data.frame. 
-Las curvas nos indican que hubo un muestreo suficiente. 
+Las curvas de rarefacción son indicativas de un muestreo adecuado cuando
+la curva llegan a la asíntota una vez que no hay decubrimiento de nuevas
+especies en el muestreo. Se genera una curva por cada uno de los
+renglones de los datos de entrada, que en este caso es el data.frame.
+Las curvas nos indican que hubo un muestreo suficiente.
 
+2.  ¿Hay muestras que deberían descartarse por bajo conteo? Sí, según
+    curva de rarefacción, se puede ver que la muestra 56 es la única no
+    llega a una asíntota. Lo que corrobora lo mostrado en la tabla que
+    ordena los conteos de lectura más bajos, donde vemos que la muestra
+    56 tiene la menor cantidad de lecturas con 1,776 lecturas, por lo
+    que puede descartarse por el bajo conteo de lecturas
 
-2. ¿Hay muestras que deberían descartarse por bajo conteo?
-Sí, según curva de rarefacción, se puede ver que la muestra 56 es la única no llega a una asíntota. Lo que corrobora lo mostrado en la tabla que ordena los conteos de lectura más bajos, donde vemos que la muestra 56 tiene la menor cantidad de lecturas con 1,776 lecturas, por lo que puede descartarse por el bajo conteo de lecturas 
+# Diversidad Alpha
 
-
-
-# Diversidad Alpha 
 ```{r}
 #Riqueza observada + Índice de Shannon + Simpson 
 
 
 #División por grupo bmi 
 
+
 ```
 
-1. ¿Qué interpretas de estas gráficas?
-El estudio realizado por O´Keefe y colaboradores (2015), del que provienen los datoshacen referencia al un experimento donde se realizó un cambio de dieta entre afro-americanos y sudafricanos. 
-En base a las diversidades alfa calculadas, podemos inferir que existe una 
-mayor uniformidad en las especoes
-Simpson indica que 
-en los afroamericanos 
-aquellos con sobrepeso tienen una mayor 
+1.  ¿Qué interpretas de estas gráficas? El estudio realizado por O´Keefe
+    y colaboradores (2015), del que provienen los datos, hacen
+    referencia al un experimento donde se realizó un cambio de dieta
+    entre afro-americanos y sudafricanos.
 
+En base a las diversidades alfa calculadas, podemos inferir que existe
+una mayor uniformidad en la distribución de las especies encontradas
 
-2-week food exchanges in subjects from the same populations, where African Americans were fed a high-fibre, low-fat African-style diet and rural Africans a high-fat, low-fibre western-style diet, under close supervision
-Del análiis de diversidad alfa podemos ver que 
-afro-americanos 
-vs africanos
+Simpson indica que
 
+en los afroamericanos aquellos con sobrepeso tienen una mayor
 
-2. ¿Hay diferencias notorias entre grupos?
-Sí, 
+2-week food exchanges in subjects from the same populations, where
+African Americans were fed a high-fibre, low-fat African-style diet and
+rural Africans a high-fat, low-fibre western-style diet, under close
+supervision Del análiis de diversidad alfa podemos ver que
+afro-americanos vs africanos
 
+2.  ¿Hay diferencias notorias entre grupos? Sí,
 
-#Filtrado y Transformación 
+#Filtrado y Transformación Código adaptado de internet en#Código tomado
+y adaptado de: <https://joey711.github.io/phyloseq/preprocess.html> y
+<https://web.stanford.edu/class/bios221/labs/phyloseq/lab_phyloseq.html?ut>
 
 ```{r}
+m
+
+ps_relativ  = transform_sample_counts (ps_sin, function(x) x / sum(x) )
+ps_filtr <- filter_taxa(ps_relativ, function(x) sum(x > 0.001) > (0.1 * length(x)), TRUE)
+ps_filtr
+
 
 ```
 
 #Diversidad Beta
 
-1. ¿Los grupos se separan visiblemente?
+1.  ¿Los grupos se separan visiblemente?
 
-2. ¿Qué podría estar causando esas diferencias?
-
-
-
-
-
-
-
-
+2.  ¿Qué podría estar causando esas diferencias?
