@@ -118,25 +118,50 @@ ps_filtr
 #distance(ps_filtr, "bray") no me funciona para este caso
 
 #Basado en: GloPa.pcoa = ordinate(GlobalPatterns, method="PCoA", distance=GPUF)
-# Función ordinate calcula la 
- 
+
 ps_pcoa = ordinate (ps_filtr, method="PCoA", distance = "bray")
 ps_pcoa
 
 #De (p12 <- plot_ordination(GlobalPatterns, GloPa.pcoa, "samples", color="SampleType") + 
 #geom_point(size=5) + geom_path() + scale_colour_hue(guide = FALSE) )
+#De: plot_ordination(my.physeq, my.ord, color="myFavoriteVarible")
+p_ordin <- plot_ordination (ps_filtr, ps_pcoa, color="nationality")
+p_ordin
 
 
-my.physeq <- import("Biom", BIOMfilename="myBiomFile.biom")
-my.ord    <- ordinate(my.physeq)
-plot_ordination(my.physeq, my.ord, color="myFavoriteVarible")
-
+pdf("Figuras/PCoA_dietswap.pdf", width = 13, height = 8)
+p_ordin
+dev.off()
 
 
             #########################
 #####         Gráfica Rank-abundance              #####
             #########################
 
+plot_rank_ab()
+
+
+
+
+for (x in 1:7) {
+  spp1 <- datos[x,c(1:14)] # Seleccionar poblacion
+  spp1.1 <- as.data.frame(t(spp1[2:13])) # Cambiar orden de los valores
+  colnames(spp1.1) <- "Abundancia" # Nombrar col
+  
+  spp1.1 <- spp1.1 %>%
+    arrange(desc(Abundancia)) # Ordenar de forma decreciente
+  
+  spp1.1$spp <- c(1:length(spp1.1$Abundancia)) # Numerar spp
+  
+  spp1.1 <- spp1.1[spp1.1$Abundancia != 0, ] # Quitar spp NO presentes
+  
+  
+  rank_ab <- ggplot(spp1.1, aes(x = spp, y = Abundancia, colour = spp)) +
+    geom_point() +  # Puntos
+    geom_line() + # Linea de union
+    labs(title = "Rank-abundance", x = "Spp", y = "Abundancia")
+  print(rank_ab)
+}
 
 
 
@@ -146,9 +171,8 @@ plot_ordination(my.physeq, my.ord, color="myFavoriteVarible")
 
 #Gráficas apiladas de abundancia por taxón
 #Agrupa por phylum o género y grafica la composición de cada muestra como gráfica de barras apiladas.
-
-plot_bar()
   
+plot_bar (myData, fill="Genus")
 
 
 

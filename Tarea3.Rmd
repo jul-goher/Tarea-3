@@ -142,7 +142,6 @@ y adaptado de: <https://joey711.github.io/phyloseq/preprocess.html> y
 <https://web.stanford.edu/class/bios221/labs/phyloseq/lab_phyloseq.html?ut>
 
 ```{r}
-m
 
 ps_relativ  = transform_sample_counts (ps_sin, function(x) x / sum(x) )
 ps_filtr <- filter_taxa(ps_relativ, function(x) sum(x > 0.001) > (0.1 * length(x)), TRUE)
@@ -153,6 +152,45 @@ ps_filtr
 
 #Diversidad Beta
 
+```{r}
+# Distancia de Bray Curtis & análisis de coordenadas principales (PCoA)
+ps_pcoa = ordinate (ps_filtr, method="PCoA", distance = "bray")
+
+# De: plot_ordination(my.physeq, my.ord, color="myFavoriteVarible")
+p_ordin <- plot_ordination (ps_filtr, ps_pcoa, color="nationality")
+p_ordin
+
+
+```
+
+
 1.  ¿Los grupos se separan visiblemente?
+Sí, hay una visible separación de los grupos entre sudafricanos y afro-americanos, donde 
 
 2.  ¿Qué podría estar causando esas diferencias?
+Estas diferencias pueden atribuirse al 
+Debido al cambio de dieta que se realizo 
+
+
+#Gráfica Rank-abundance
+```{r}
+
+```
+
+1. ¿Qué tan dominada está la comunidad por pocos taxones y cuáles son?
+
+
+2. ¿Qué tipo de distribución parece seguir?
+
+#Gráficas apiladas de abundancia por taxón
+
+```{r}
+
+```
+
+1. ¿Hay algún phylum que domine?
+
+2. ¿Se observan diferencias entre grupos?
+
+
+
