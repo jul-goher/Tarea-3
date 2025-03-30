@@ -43,13 +43,13 @@ Mediante el uso de 'sample_variables ()' sobre el objeto phylosq es
 posible viisualizar las variables, que incluyen:
 
 -   subject
--   sex\
--   nationality
--   group
+-   sex (male, female)
+-   nationality (AAM O AFR)
+-   group 
 -   sample
--   timepoint
+-   timepoint (1-6)
 -   timepoint.within.group
--   bmi_group
+-   bmi_group (lean, overweight, obese)
 
 ```{r}
 sample_variables (ps)
@@ -75,21 +75,31 @@ setnames (cuenta_lecturas, "rn", "SampleID")
 head(cuenta_lecturas[order(cuenta_lecturas$TotalReads), c("SampleID", "TotalReads")])
 #Ordena los conteos de lectura más bajos
 
-## Curva de rarefacción 
-otu_cr <- otu_table (ps_sin) #Extraer la tabla de abundancias de los OTUs del objeto phyloseq
-otu_cr <- as.data.frame (t(otu_cr)) #Cambiar a un data frame
-sample_names <- rownames (otu_cr) #Añadir nombres según los renglones del data-frame
 
-# Step es un intervalo en el que se calcula la riqueza conforme añade lecturas
-# Define cuantas lecturas se añaden en incrementos x al realizar la curva
-# En este caso elegí 200 ya que computaba más rápido que a 100
+```
+Dejé el código de la curva de rarefacción como un comentario con # ya que el markdown no lo cargaba, pero dejé la imagen generada por el código presente en el script
+```{r}
+#Curva de rarefacción 
 
-curva <- otu.rarecurve = rarecurve (otu_cr, step = 200)
+# otu_cr <- otu_table (ps_sin)  #
+#Extraer la tabla de abundancias de los OTUs del objeto phyloseq
+
+#Cambiar a un data frame
+# otu_cr <- as.data.frame (t(otu_cr)) #
+
+#Añadir nombres según los renglones del data-frame
+# sample_names <- rownames (otu_cr)   #
+
+# curva <- otu.rarecurve = rarecurve (otu_cr, step = 200) #
 #Eje-y -> riqueza de las especies
 #Eje-x -> cobertura 
 
-
 ```
+
+
+<img src = "/Users/julie/OneDrive/R/Genómica Funcional/Tarea-3/Figuras/curva_rarefaccion.png" alt = "Curva de rarefacción" width="500" height="300">
+
+
 
 1.  ¿Qué indican estas curvas?
 
@@ -99,46 +109,39 @@ especies en el muestreo. Se genera una curva por cada uno de los
 renglones de los datos de entrada, que en este caso es el data.frame.
 Las curvas nos indican que hubo un muestreo suficiente.
 
-2.  ¿Hay muestras que deberían descartarse por bajo conteo? Sí, según
-    curva de rarefacción, se puede ver que la muestra 56 es la única no
-    llega a una asíntota. Lo que corrobora lo mostrado en la tabla que
-    ordena los conteos de lectura más bajos, donde vemos que la muestra
-    56 tiene la menor cantidad de lecturas con 1,776 lecturas, por lo
-    que puede descartarse por el bajo conteo de lecturas
+2.  ¿Hay muestras que deberían descartarse por bajo conteo? 
+Sí, según la curva de rarefacción, se puede ver que la muestra 56 es la única no llega a una asíntota. Lo que corrobora lo mostrado en la tabla que ordena los conteos de lectura más bajos, donde vemos que la muestra 56 tiene la menor cantidad de lecturas con 1,776 lecturas, por lo que puede descartarse por el bajo conteo de lecturas. 
 
 # Diversidad Alpha
 
 ```{r}
 #Riqueza observada + Índice de Shannon + Simpson 
 
+div_alpha_plot <- plot_richness (ps_sin, x = "nationality", measures = c("Observed", "Shannon", "Simpson") ) + 
+              geom_boxplot() + ggtitle ("Diversidad Alpha") + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 7) ) 
 
-#División por grupo bmi 
+print(div_alpha_plot)
 
 
 ```
 
-1.  ¿Qué interpretas de estas gráficas? El estudio realizado por O´Keefe
-    y colaboradores (2015), del que provienen los datos, hacen
-    referencia al un experimento donde se realizó un cambio de dieta
-    entre afro-americanos y sudafricanos.
+###### ¿Qué interpretas de estas gráficas?, ¿Hay diferencias notorias entre grupos? 
 
-En base a las diversidades alfa calculadas, podemos inferir que existe
-una mayor uniformidad en la distribución de las especies encontradas
+El estudio realizado por O´Keefe y colaboradores (2015), del que provienen los datos, la base de datos pertenece a un experimento donde se realizó un cambio de dieta entre individuos afro-americanos y sudafricanos.
 
-Simpson indica que
+En base a la riqueza observada, podemos ver que se espera una menor riqueza en los individuos afro-americanos (AAM) a comparación de los africanos (AFR). 
+Una vez con el índice de Shannon, es posoble ver que los individuos AAM tienen una media del índice de Shannon mayor a los AFR. Esto es indicativo de una mayor diversidad en el grupo AAM. Además, es posible visualizar un mayor tamaño del intercuartil para el grupo AFR, lo que sugiere una menor variabilidad a comparación de los AAM. 
 
-en los afroamericanos aquellos con sobrepeso tienen una mayor
+Con una media del índice de Simpson mayor para el grupo AAM, la gráfica sugiere una dominancia de especies para los AAM, no obstante, según lo indicado en esta [fuente](https://rdrr.io/cran/vegan/man/diversity.html), es el índice de Gini-Simpson, ya que lo que devuelve es el cálculo de 1-D. En base a esta información, entonces estaríamos observando una mayor equidad para AAM a comparación de AFR, puesto que entre más alto este valor, hay una menor desigualdad en la distribución de especies. 
 
-2-week food exchanges in subjects from the same populations, where
-African Americans were fed a high-fibre, low-fat African-style diet and
-rural Africans a high-fat, low-fibre western-style diet, under close
-supervision Del análiis de diversidad alfa podemos ver que
-afro-americanos vs africanos
+Sí es posible observar diferencias entre los grupos, particularmente en la distribución de las especies, donde el grupo AAM tiene una menor riqueza, pero una mayor unuiformidad en la distribución de estas especies, mientras que el grupo AFR tiene una mayor riqueza de especies, pero algunas de estas son más predominantes qye otras. Esto deja espacio para inqurir más sobre el experimento, ya que  sería interesante evaluar estas medidas no sólo por nacionalidad, sino por grupo de IMC o BMI, e incluso por timepoint, para evaluar estos cambios en la equidad y distribución a lo largo de las 2 semanas del transcurso del experimento. 
 
-2.  ¿Hay diferencias notorias entre grupos? Sí,
 
-#Filtrado y Transformación Código adaptado de internet en#Código tomado
-y adaptado de: <https://joey711.github.io/phyloseq/preprocess.html> y
+# Filtrado y Transformación 
+
+Código tomado y adaptado de: <https://joey711.github.io/phyloseq/preprocess.html> y
 <https://web.stanford.edu/class/bios221/labs/phyloseq/lab_phyloseq.html?ut>
 
 ```{r}
@@ -150,7 +153,7 @@ ps_filtr
 
 ```
 
-#Diversidad Beta
+# Diversidad Beta
 
 ```{r}
 # Distancia de Bray Curtis & análisis de coordenadas principales (PCoA)
@@ -165,32 +168,81 @@ p_ordin
 
 
 1.  ¿Los grupos se separan visiblemente?
-Sí, hay una visible separación de los grupos entre sudafricanos y afro-americanos, donde 
+
+Sí, hay una visible separación de los grupos entre africanos y afro-americanos, donde es evidente un agrupamiento distinto entre grupos. No obstante, aún existe un sobrelapamiento entre algunos grupos, por lo que aún existen similitudes entre ambos grupos. 
 
 2.  ¿Qué podría estar causando esas diferencias?
-Estas diferencias pueden atribuirse al 
-Debido al cambio de dieta que se realizo 
 
+Estas diferencias pueden atribuirse a la dieta que se realizó, donde hubo un intercambio de una dieta alta en friba y baja en grasas (dieta africana) y una dieta baja en fibra y alta en grasas (dieta americana) entre los grupos.  No obstante, la dieta no puede ser la única variable, ya que también puede tomarse en cuenta el BMI de los individuos. 
 
-#Gráfica Rank-abundance
+# Gráfica Rank-abundance
 ```{r}
+# Abundancia totalde cada uno de los taxones
+abund_total <- taxa_sums(ps_sin) #uso de taxa_sums como cuando se eliminaron los taxones menores a 1
+# Orden de mayor a menor
+abundancias_ordenadas <- sort (abund_total, decreasing = TRUE)
+# Generar números para cada uno de los taxones,según la longitud de abund_total
+secuencia_taxones <- seq_along (abund_total)
+# Crear un data.frame del objecto phyloseq 
+rank_df <- data.frame (
+  Abundancia = abundancias_ordenadas, 
+  Especies = secuencia_taxones
+)
+
+# Curva de rarefacción 
+rank_abundance <- ggplot (rank_df, aes(x = Especies, y = Abundancia, colour = Especies)) +
+  geom_point() + geom_line() +  #puntos y línea
+  labs( title = "Rank-abundance", x = "Spp", y = "Abundance")
+
+print(rank_abundance)
+
 
 ```
 
 1. ¿Qué tan dominada está la comunidad por pocos taxones y cuáles son?
 
+La comunidad cuenta con dominancia de pocas especies, de las que destacan  Prevotella melaninogenica, Oscillospira guillermondii, Bacteroides vulgatus, Clostridium cellulosi, Prevotella oralis y Faecalibacterium prausnitzii según el objeto de `abundancias_ordenadas`.
 
 2. ¿Qué tipo de distribución parece seguir?
 
-#Gráficas apiladas de abundancia por taxón
+La comunidad parece seguir una distribución de cola larga, donde hay dominancia de pocas especies y especies raras de poca abundancia. 
 
+
+# Gráficas apiladas de abundancia por taxón
+
+```{r}
+phylum_apliada <- plot_bar(ps_sin, x = "nationality", y = "Abundance", fill = "Phylum") + 
+                geom_bar(aes(color=Phylum, fill=Phylum), stat="identity", position="stack")
+
+print(phylum_apliada)
+
+```
+
+* ¿Hay algún phylum que domine?, ¿Se observan diferencias entre grupos?
+
+Sí, los Phylum Bacteroidetes y Firmicutes predominan para ambos grupos de nacionalidad. En cuanto al phylum, en este gráfico no existe demasiada distinción, puesto que los mismos phylums dominan entre ambas nacionalidades. No obstante, una diferencia notable es que hay una mayor abundancia para el grupo AAM que en el grupo AFR. 
+
+# GlobalPatterns
+## Preprocesamiento 
 ```{r}
 
 ```
 
-1. ¿Hay algún phylum que domine?
 
-2. ¿Se observan diferencias entre grupos?
+## Diversidad Alfa
+
+* ¿Qué ambiente muestra mayor diversidad alfa? ¿A qué factores podría deberse?
 
 
+## Curvas de rango-abundancia
+
+* ¿Qué patrón de dominancia taxonómica muestran las curvas de rango-abundancia?
+
+## Perfil taxonómico
+* ¿Qué phyla son dominantes en cada ambiente y qué implicaciones ecológicas sugieren?
+
+
+## Diversidad Beta
+
+* ¿Qué se observa en la ordenación PCoA respecto a similitudes entre muestras?
 

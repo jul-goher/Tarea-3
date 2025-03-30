@@ -59,10 +59,15 @@ otu.rarecurve = rarecurve (otu_cr, step = 200, label=FALSE)
 #Eje-y -> riqueza de las especies
 #Eje-x -> cobertura 
 
-#Guardar la curva
+#Guardar la curva como pdf
+pdf("Figuras/curva_rarefaccion.png", width = 13, height = 8)
+otu.rarecurve = rarecurve (otu_cr, step = 200)
+dev.off()
+#Guardadr como pdf
 pdf("Figuras/curva_rarefaccion.pdf", width = 13, height = 8)
 otu.rarecurve = rarecurve (otu_cr, step = 200)
 dev.off()
+
 
 #Apoyo: https://search.r-project.org/CRAN/refmans/vegan/html/rarefy.html
 #
@@ -71,16 +76,22 @@ dev.off()
                   ################
 #Calcula y grafica:
 # Riqueza observada + ínidce de Shannon & Simpson
-plot_richness (ps_sin, x = "nationality", measures = c("Observed", "Shannon", "Simpson") ) + 
+div_alpha_plot <- plot_richness (ps_sin, x = "nationality", measures = c("Observed", "Shannon", "Simpson") ) + 
               geom_boxplot() + ggtitle ("Diversidad Alpha") + 
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 7) ) 
 
+print(div_alpha_plot)
 
-plot_richness(ps_sin, x = "bmi_group", color = "nationality" , measures = c("Observed", "Shannon", "Simpson")) +
+plot_richness(ps_sin, x = "bmi_group", color = "nationality" , measures = c("Observed", "Shannon", "Simpson" )) +
   geom_boxplot()
 
 #plot_richness(ps_sin, x = "nationality", color = "sex" , measures = c("Observed", "Shannon", "Simpson"))
+
+# Guardar gráfica de diversidad alpha
+pdf("Figuras/div_alpha.pdf", width = 13, height = 8)
+div_alpha_plot
+dev.off()
 
 ## Escribir la diversidad alpha en un csv 
 # Estimar la riqueza con una función  
@@ -138,12 +149,11 @@ dev.off()
 #####         Gráfica Rank-abundance              #####
             #########################
 
-# Abundancia total para definir el eje y 
+# Abundancia totalde cada uno de los taxones
 abund_total <- taxa_sums(ps_sin) #uso de taxa_sums como cuando se eliminaron los taxones menores a 1
-#Dice la abundancia de cada uno de los taxones 
-
 # Orden de mayor a menor
 abundancias_ordenadas <- sort (abund_total, decreasing = TRUE)
+abundancias_ordenadas
 # Generar números para cada uno de los taxones,según la longitud de abund_total
 secuencia_taxones <- seq_along (abund_total)
 # Crear un data.frame del objecto phyloseq 
@@ -155,8 +165,7 @@ rank_df <- data.frame (
 
 # Curva de rarefacción 
 rank_abundance <- ggplot (rank_df, aes(x = Especies, y = Abundancia, colour = Especies)) +
-  geom_point() +  #Puntos
-  geom_line() +   #Unión 
+  geom_point() + geom_line() +  #puntos y línea
   labs( title = "Rank-abundance", x = "Spp", y = "Abundance")
 
 print(rank_abundance)
@@ -168,7 +177,7 @@ dev.off()
 
 
             ################################
-#####       Gráfica apliadada de abundancias      #####
+#####       Gráfica apiladada de abundancias      #####
             ################################
 
 #Gráficas apiladas de abundancia por taxón (género o phylum)
@@ -180,6 +189,70 @@ phylum_apliada <- plot_bar(ps_sin, x = "nationality", y = "Abundance", fill = "P
 pdf("Figuras/abundancias_apiladas.pdf", width = 13, height = 8)
 phylum_apliada
 dev.off()
+
+
+
+      ############################################
+#####               GlobalPatterns                ######
+      ###########################################
+data("GlobalPatterns")
+gp <- GlobalPatterns
+
+################
+#     Preprocesamiento
+#################
+
+#Filtrar taxa con menos de 5 lecturas en al menos 20% de las muestras
+gp_filtr <- filter_taxa(gp, function(x) sum(x > 5) > (0.2 * length(x)), TRUE)
+gp_filtr
+
+#Aglomerar a nivel de Familia
+
+#Transformar a abundancias relativas (%)
+gp_rel  = transform_sample_counts (gp_filtr, function(x) x / sum(x) )
+
+#Subset para incluir solo muestras de: Soil, Feces, Skin
+
+#Muestra las dimensiones del objeto resultante
+
+
+################
+#     Diversidad Alfa
+#################
+
+#Calcular 3 índices de diversidad alfa ( Shannon , Simpson , Observed )
+#Crear boxplots comparativos de los índices entre tipos de muestra
+#Realizar prueba estadística (Kruskal-Wallis) para diferencias entre grupos
+
+
+################
+#     Curvas de rango-abundancia
+#################
+#Crear gráficas de rango-abundancia para cada tipo de muestra Usar escala log10 en Y Comparar patrones
+#entre ambientes
+
+
+################
+#     Perfil taxonómico
+#################
+
+#Crear gráfico apilado de abundancia a nivel de Phylum
+#Mostrar solo los 5 phyla más abundantes
+#Agrupar por tipo de muestra
+#Usar facet_wrap para comparar ambientes
+
+
+################
+#     Diversidad Beta
+#################
+#Calcular distancia Bray-Curtis
+#Realizar PCoA
+#Visualizar con:
+  #Colores por tipo de muestra
+  #Elipses de confianza del 95%
+  #Incluir stress plot
+#Realizar PERMANOVA para diferencias entre grupos
+
 
 
 
