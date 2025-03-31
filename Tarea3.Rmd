@@ -241,7 +241,9 @@ Aquí, podemos notar que el grupo AFR tiene una mayor cantidad de individuos del
 
 # GlobalPatterns
 ## Preprocesamiento 
-Codigo realizado con apoyo de sitios de [internet] <https://forum.qiime2.org/t/subsetting-specific-samples-from-a-phyloseq-object/22361> <https://joey711.github.io/phyloseq/preprocess.html>
+Codigo realizado consultando: 
+* https://forum.qiime2.org/t/subsetting-specific-samples-from-a-phyloseq-object/2236
+* https://joey711.github.io/phyloseq/preprocess.html
 
 ```{r}
 data("GlobalPatterns")
