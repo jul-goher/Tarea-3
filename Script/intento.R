@@ -18,6 +18,8 @@ fe_ra <- ggplot (fe_rank_df, aes (x = Especies, y = Abundancia)) +
   labs (title = "Rank-Abundance - Heces ", x = "Spp", y = "Abundancia") +
   theme_minimal()
 
-print (fe_ra)
+print (fe_ra) 
+#no muestra el plot, 
+#Reinicie R, todos los objetos corren bien 
 
 plot (fe_ra)

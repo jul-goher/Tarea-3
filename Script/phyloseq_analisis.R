@@ -259,37 +259,64 @@ sample_data(gp_filtr)$SampleType
 
 ## Curvas de rango-abundancia
 ```{r}
-#* ¿Qué patrón de dominancia taxonómica muestran las curvas de rango-abundancia?
-# No me sale :p
+# ¿Qué patrón de dominancia taxonómica muestran las curvas de rango-abundancia?
 
 ```
+#Tengo que hacer rank.abundance de soil, feces y skin individualmente, supongo 
 
-# Abundancia totalde cada uno de los taxones
-gp_abund_total <- taxa_sums(gp_filtr) #uso de taxa_sums como cuando se eliminaron los taxones menores a 1
-# Orden de mayor a menor
-gp_abundancias_ordenadas <- sort (abund_total, decreasing = TRUE)
-gp_abundancias_ordenadas
-# Generar números para cada uno de los taxones,según la longitud de abund_total
-gp_secuencia_taxones <- seq_along (abund_total)
-# Crear un data.frame del objecto phyloseq 
-gp_rank_df <- data.frame (
-  Abundancia = abundancias_ordenadas, 
-  Especies = secuencia_taxones
-)
-
-
-# Curva de rarefacción 
-rank_abundance <- ggplot (gp_rank_df, aes(x = Especies, y = Abundancia, colour = SampleType)) +
-  geom_point() + geom_line() +  #puntos y línea
-  labs( title = "Rank-abundance", x = "Spp", y = "Abundance")
-
-print(rank_abundance)
-
-
-#Código nuevo 
+# Código nuevo 
+######## Rank-abundance FECES ##############
 gp_feces <- subset_samples (gp_subset, SampleType == "Feces") #utilizo subset generado previamente 
+# Suma de las abundancias 
+fe_abund_total <- taxa_sums(gp_feces)
+# Acomodo de mayor a menor
+fe_abundancias_ordenadas <- sort(fe_abund_total, decreasing = TRUE)
+# Secuencias para cada taxón 
+fe_secuencia_taxones <- seq_along(fe_abundancias_ordenadas)
+
+##Generar el data frame a partir de los objetos generados 
+fe_rank_df <- data.frame (
+  Abundancia = fe_abundancias_ordenadas,
+  Especies = fe_secuencia_taxones )
+
+##Generar rank-abundance para heces 
+fe_ra <- ggplot (fe_rank_df, aes (x = Especies, y = Abundancia)) +
+  geom_point() + geom_line() + 
+  scale_y_log10() +
+  labs (title = "Rank-Abundance - Heces ", x = "Spp", y = "Abundancia")
+print (fe_ra) 
+
+#Guardar pdf 
+pdf("Figuras/gp_rank_feces.pdf", width = 13, height = 8)
+fe_ra
+dev.off ( )
+
+######## Rank-abundance SOIL ##########
+
+gp_soil <- subset_samples (gp_subset, SampleType == "Soil") #utilizo subset generado previamente 
+# Suma de las abundancias 
+soil_abund_total <- taxa_sums(gp_soil)
+# Acomodo de mayor a menor
+soil_abundancias_ordenadas <- sort(soil_abund_total, decreasing = TRUE)
+# Secuencias para cada taxón 
+soil_secuencia_taxones <- seq_along(soil_abundancias_ordenadas)
+
+##Generar el data frame a partir de los objetos generados 
+soil_rank_df <- data.frame (
+  Abundancia = soil_abundancias_ordenadas,
+  Especies = soil_secuencia_taxones )
+
+##Generar rank-abundance para heces 
+soil_ra <- ggplot (soil_rank_df, aes (x = Especies, y = Abundancia)) +
+  geom_point() + geom_line() +  
+  scale_y_log10() +
+  labs (title = "Rank-Abundance - Suelo ", x = "Spp", y = "Abundancia") +
+  
+  print (soil_ra) 
 
 
+
+######## Rank-abundance SKIN
 
 
 
