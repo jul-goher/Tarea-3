@@ -257,12 +257,7 @@ dev.off ()
 sample_variables (gp_filtr)
 sample_data(gp_filtr)$SampleType
 
-## Curvas de rango-abundancia
-```{r}
-# ¿Qué patrón de dominancia taxonómica muestran las curvas de rango-abundancia?
-
-```
-#Tengo que hacer rank.abundance de soil, feces y skin individualmente, supongo 
+#Tengo que hacer rank.abundance de soil, feces y skin individualmente 
 
 # Código nuevo 
 ######## Rank-abundance FECES ##############
@@ -280,10 +275,11 @@ fe_rank_df <- data.frame (
   Especies = fe_secuencia_taxones )
 
 ##Generar rank-abundance para heces 
-fe_ra <- ggplot (fe_rank_df, aes (x = Especies, y = Abundancia)) +
-  geom_point() + geom_line() + 
+fe_ra <- ggplot (fe_rank_df, aes (x = Especies, y = Abundancia, colour = Especies)) +
+  geom_point() + geom_line() +  
   scale_y_log10() +
   labs (title = "Rank-Abundance - Heces ", x = "Spp", y = "Abundancia")
+
 print (fe_ra) 
 
 #Guardar pdf 
@@ -306,19 +302,45 @@ soil_rank_df <- data.frame (
   Abundancia = soil_abundancias_ordenadas,
   Especies = soil_secuencia_taxones )
 
-##Generar rank-abundance para heces 
-soil_ra <- ggplot (soil_rank_df, aes (x = Especies, y = Abundancia)) +
+##Generar rank-abundance para suelo 
+soil_ra <- ggplot (soil_rank_df, aes (x = Especies, y = Abundancia, colour = Especies)) +
   geom_point() + geom_line() +  
   scale_y_log10() +
-  labs (title = "Rank-Abundance - Suelo ", x = "Spp", y = "Abundancia") +
-  
-  print (soil_ra) 
+  labs (title = "Rank-Abundance - Suelo ", x = "Spp", y = "Abundancia")
+print (soil_ra) 
 
+#Guardar pdf 
+pdf("Figuras/gp_rank_soil.pdf", width = 13, height = 8)
+soil_ra
+dev.off ( )
 
 
 ######## Rank-abundance SKIN
+gp_skin <- subset_samples (gp_subset, SampleType == "Skin") #utilizo subset generado previamente 
+# Suma de las abundancias 
+skin_abund_total <- taxa_sums(gp_skin)
+# Acomodo de mayor a menor
+skin_abundancias_ordenadas <- sort(skin_abund_total, decreasing = TRUE)
+# Secuencias para cada taxón 
+skin_secuencia_taxones <- seq_along(skin_abundancias_ordenadas)
 
+##Generar el data frame a partir de los objetos generados 
+skin_rank_df <- data.frame (
+  Abundancia = skin_abundancias_ordenadas,
+  Especies = skin_secuencia_taxones )
 
+##Generar rank-abundance para piel  
+skin_ra <- ggplot (skin_rank_df, aes (x = Especies, y = Abundancia, colour = Especies)) +
+  geom_point() + geom_line() +  
+  scale_y_log10() +
+  labs (title = "Rank-Abundance - Skin ", x = "Spp", y = "Abundancia")
+
+print (skin_ra) 
+
+#Guardar pdf 
+pdf("Figuras/gp_rank_skin.pdf", width = 13, height = 8)
+skin_ra
+dev.off ( )
 
 
 ################

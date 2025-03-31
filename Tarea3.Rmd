@@ -291,6 +291,83 @@ Podemos ver que las muestras pertenecientes al suelo demuestran la mayor riqueza
 
 La gran diversidad en un ambiente de suelo es atribuida a una pletora de factores, incluida la vegetación presente en el suelo junto con la materia orgánica en descomposición, que propicia un ambiente apto para una variedad de microorganismos, en este caso, bacterias, considerando que los datos son provenientes de un estudio de diversidad de 16sRNA realizado por Caporaso y colaboradores ([2010](https://doi.org/10.1073/pnas.100008010)). Algunos otros factores que influyen en las poblaciones microbianas del suelo incluyen el pH. la temperatura, la humedad, y claro, la intervención humana, donde las prácticas humanas pueden promover la diversidad o irrumpir con el ecosistema. 
 
+## Gráficas de rank-abundace
+
+Se realizaron las gráficas de rank-abundance para los tipos de muestra dentro el objeto `gp_subset` previamente utilizado. 
+
+```{r}
+# FECES
+gp_feces <- subset_samples (gp_subset, SampleType == "Feces") #utilizo subset generado previamente 
+# Suma de las abundancias 
+fe_abund_total <- taxa_sums(gp_feces)
+# Acomodo de mayor a menor
+fe_abundancias_ordenadas <- sort(fe_abund_total, decreasing = TRUE)
+# Secuencias para cada taxón 
+fe_secuencia_taxones <- seq_along(fe_abundancias_ordenadas)
+
+##Generar el data frame a partir de los objetos generados 
+fe_rank_df <- data.frame (
+  Abundancia = fe_abundancias_ordenadas,
+  Especies = fe_secuencia_taxones )
+
+##Generar rank-abundance para heces 
+fe_ra <- ggplot (fe_rank_df, aes (x = Especies, y = Abundancia, colour = Especies)) +
+  geom_point() + geom_line() +  
+  scale_y_log10() +
+  labs (title = "Rank-Abundance - Heces ", x = "Spp", y = "Abundancia")
+
+print (fe_ra) 
+
+
+# SUELO 
+gp_soil <- subset_samples (gp_subset, SampleType == "Soil") #utilizo subset generado previamente 
+# Suma de las abundancias 
+soil_abund_total <- taxa_sums(gp_soil)
+# Acomodo de mayor a menor
+soil_abundancias_ordenadas <- sort(soil_abund_total, decreasing = TRUE)
+# Secuencias para cada taxón 
+soil_secuencia_taxones <- seq_along(soil_abundancias_ordenadas)
+
+##Generar el data frame a partir de los objetos generados 
+soil_rank_df <- data.frame (
+  Abundancia = soil_abundancias_ordenadas,
+  Especies = soil_secuencia_taxones )
+
+##Generar rank-abundance para suelo 
+soil_ra <- ggplot (soil_rank_df, aes (x = Especies, y = Abundancia, colour = Especies)) +
+  geom_point() + geom_line() +  
+  scale_y_log10() +
+  labs (title = "Rank-Abundance - Suelo ", x = "Spp", y = "Abundancia")
+
+print (soil_ra) 
+
+
+
+# SKIN
+gp_skin <- subset_samples (gp_subset, SampleType == "Skin") #utilizo subset generado previamente 
+# Suma de las abundancias 
+skin_abund_total <- taxa_sums(gp_skin)
+# Acomodo de mayor a menor
+skin_abundancias_ordenadas <- sort(skin_abund_total, decreasing = TRUE)
+# Secuencias para cada taxón 
+skin_secuencia_taxones <- seq_along(skin_abundancias_ordenadas)
+
+##Generar el data frame a partir de los objetos generados 
+skin_rank_df <- data.frame (
+  Abundancia = skin_abundancias_ordenadas,
+  Especies = skin_secuencia_taxones )
+
+##Generar rank-abundance para piel  
+skin_ra <- ggplot (skin_rank_df, aes (x = Especies, y = Abundancia, colour = Especies)) +
+  geom_point() + geom_line() +  
+  scale_y_log10() +
+  labs (title = "Rank-Abundance - Skin ", x = "Spp", y = "Abundancia")
+  
+print (skin_ra) 
+```
+
+* ¿Qué patrón de dominancia taxonómica muestran las curvas de rango-abundancia?
+Las 3 gráficas parecen seguir un patrón de distribución de cola larga, con pocas especies dominantes y varias especies raras. Demuestra una gran diversidad de especies.   
 
 
 ## Perfil taxonómico
