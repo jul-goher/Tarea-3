@@ -228,7 +228,7 @@ print(phylum_apliada)
 
 Sí, los Phylum Bacteroidetes y Firmicutes predominan para ambos grupos de nacionalidad. En cuanto al phylum, en este gráfico no existe demasiada distinción, puesto que los mismos phylums dominan entre ambas nacionalidades. No obstante, una diferencia notable es que hay una mayor abundancia para el grupo AAM que en el grupo AFR. 
 
-Otro uso de la gráfica apliada, además de distingir por abundancia de taxones, también sirve para ver cómo los grupos dominan una cierta [categoría] <https://rpubs.com/nabiilahardini/microbiome> 
+Otro uso de la gráfica apliada, además de distingir por abundancia de taxones, también sirve para ver cómo los grupos dominan una cierta [categoría](https://rpubs.com/nabiilahardini/microbiome)
 
 ```{r}
 plot_frequencies (x = sample_data(ps_sin), 
@@ -241,9 +241,9 @@ Aquí, podemos notar que el grupo AFR tiene una mayor cantidad de individuos del
 
 # GlobalPatterns
 ## Preprocesamiento 
-Codigo realizado consultando: 
-* https://forum.qiime2.org/t/subsetting-specific-samples-from-a-phyloseq-object/2236
-* https://joey711.github.io/phyloseq/preprocess.html
+Codigo realizado consultando
+* [sitio1](https://forum.qiime2.org/t/subsetting-specific-samples-from-a-phyloseq-object/2236)
+* [sitio2]((https://joey711.github.io/phyloseq/preprocess.html)
 
 ```{r}
 data("GlobalPatterns")
@@ -260,7 +260,9 @@ gp_glom = tax_glom(gp_filtr, "Family")
 gp_rel  = transform_sample_counts (gp_filtr, function(x) x / sum(x) )
 
 #Subset para incluir solo muestras de: Soil, Feces, Skin
-#Código tomado de: https://forum.qiime2.org/t/subsetting-specific-samples-from-a-phyloseq-object/22361 
+#Código tomado de: 
+#https://forum.qiime2.org/t/subsetting-specific-samples-from-a-phyloseq-object/22361 
+
 #Cargué librería tidyverse para que reconozca %>%
 gp_subset <- gp_filtr %>% subset_samples(SampleType %in% c("Soil", "Feces", "Skin"))
 
@@ -276,13 +278,18 @@ print (gp_subset)
 alpha_divgp <- estimate_richness (gp_filtr, measures = c("Observed", "Shannon", "Simpson" ))
 
 # Crear boxplots comparativos de los índices entre tipos de muestra
-sample_variables(gp_filtr) #ver que variable sutilizo para graficar 
-plot_richness(gp_subset, x = "SampleType", color = "SampleType" , measures = c("Observed", "Shannon", "Simpson" )) +
+gp_alpha_box <- plot_richness(gp_subset, x = "SampleType", color = "SampleType" , measures = c("Observed", "Shannon", "Simpson" )) +
   geom_boxplot()
+
+gp_alpha_box
 
 ```
 
 * ¿Qué ambiente muestra mayor diversidad alfa? ¿A qué factores podría deberse?
+
+Podemos ver que las muestras pertenecientes al suelo demuestran la mayor riqueza observadaentre los tres tipos de muestra, seguido por las muestras de de piel y heces en este orden. Esto se repite para el índice de Shannon, donde es indicativo de una mayor uniformidad a comparación de la estimada para piel (~4) y heces (~3). En este caso, un valor alto en el índice de Simpson es indicativo de una mayor equidad, lo que tiene sentido si consideramos que phyloseq devuelve 1-D, el índice de Gini Simpson; por lo que podemos que las muestras de suelo consistentemente muestran la diversidad alpha más alta, siendo este el tipo de muestra más diverso a comparación de los otros 2. 
+
+La gran diversidad en un ambiente de suelo es atribuida a una pletora de factores, incluida la vegetación presente en el suelo junto con la materia orgánica en descomposición, que propicia un ambiente apto para una variedad de microorganismos, en este caso, bacterias, considerando que los datos son provenientes de un estudio de diversidad de 16sRNA realizado por Caporaso y colaboradores ([2010](https://doi.org/10.1073/pnas.100008010)). Algunos otros factores que influyen en las poblaciones microbianas del suelo incluyen el pH. la temperatura, la humedad, y claro, la intervención humana, donde las prácticas humanas pueden promover la diversidad o irrumpir con el ecosistema. 
 
 
 ## Curvas de rango-abundancia
@@ -297,28 +304,40 @@ plot_richness(gp_subset, x = "SampleType", color = "SampleType" , measures = c("
 ```{r}
 # Del gp filtrado, seleccionar únicamente los phylums
 gp_apil = tax_glom(gp_filtr, "Phylum")
-# Identificar 5 Phylum mayores por abundancia
-gp_top_phylum <- names (sort (taxa_sums(gp_apil), decreasing = TRUE)[1:5])
-# Quedarse con los únicos 5 phylums más abundantes
-gp_solo_top <- prune_taxa (gp_top_phylum, gp_apil)
 
-#Adaptar gráfica con facet_wrap
-gp_phylum_apilada2 <- plot_bar(gp_solo_top, x = "Sample", y = "Abundance", fill = "Phylum") +
-  geom_bar(aes(color = Phylum, fill = Phylum), stat = "identity", position = "stack") +
+#Para convertir a un data.frame, para después poder graficar, se utiliza psmelt 
+#https://www.bioconductor.org/packages/devel/bioc/vignettes/phyloseq/inst/doc/phyloseq-FAQ.html
+df_phylum <- psmelt(gp_apil)
+
+#Seleccionar top 5 phylums POR MUESTRA
+df_top_phyla <- df_phylum %>%
+  group_by(Sample) %>%
+  slice_max(order_by = Abundance, n = 5) %>%
+  ungroup()
+
+#Crear stacked bar graph
+gp_phylum_apilada3 <- ggplot(df_top_phyla, aes(x = Sample, y = Abundance, fill = Phylum)) +
+  geom_bar(stat = "identity", position = "stack") +
   facet_wrap(~ SampleType, scales = "free_x") +
-  labs(title = "Top 5 Phylums por muestra",
-       x = "Muestras",
-       y = "Abundancia")
+  labs(title = "Top 5 Phylum por muestra", x = "Muestras", y = "Abundancia" )
+
+gp_phylum_apilada3
+
 
 ```
 
 * ¿Qué phyla son dominantes en cada ambiente y qué implicaciones ecológicas sugieren?
 
 
+
+Sugieren que para cada 
+
+
+
 ## Diversidad Beta
+Código realizado mediante la consulta de 
+[sitio1](https://www.bioconductor.org/packages/devel/bioc/vignettes/phyloseq/inst/doc/phyloseq-analysis.html) y [sitio2](https://forum.qiime2.org/t/pcoa-plots-with-confidence-ellipsoids/11612/2)
 ```{r}
-#Código de: https://www.bioconductor.org/packages/devel/bioc/vignettes/phyloseq/inst/doc/phyloseq-analysis.html
-# y https://forum.qiime2.org/t/pcoa-plots-with-confidence-ellipsoids/11612/2
 gp_dm = ordinate(gp_filtr, method ="PCoA", distance = "bray")
 
 gp_pcoa <- plot_ordination (gp_filtr, gp_dm, "samples", color="SampleType") + 

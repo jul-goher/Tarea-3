@@ -240,6 +240,9 @@ sample_variables(gp_filtr) #ver que variable sutilizo para graficar
 gp_alpha_box <- plot_richness(gp_subset, x = "SampleType", color = "SampleType" , measures = c("Observed", "Shannon", "Simpson" )) +
   geom_boxplot()
 
+gp_alpha_box
+
+
 #Guardar div alpha en un pdf
 pdf("Figuras/globalpatterns_div_alpha.pdf", width = 13, height = 8)
 gp_alpha_box
@@ -307,6 +310,7 @@ gp_df <- psmelt(gp_solo_top)
 gp_apil = tax_glom(gp_filtr, "Phylum")
 # Identificar 5 Phylum mayores por abundancia
 gp_top_phylum <- names (sort (taxa_sums(gp_apil), decreasing = TRUE)[1:5])
+#Está mal, porque me está dando los top 5 phylums globalmente, no individuales por tipo de muestra
 # Quedarse con los únicos 5 phylums más abundantes
 gp_solo_top <- prune_taxa (gp_top_phylum, gp_apil)
 
@@ -327,12 +331,37 @@ gp_phylum_apilada2 <- plot_bar(gp_solo_top, x = "Sample", y = "Abundance", fill 
   labs(title = "Top 5 Phylums por muestra",
        x = "Muestras",
        y = "Abundancia")
-gp_phylum_apilada2
+gp_phylum_apilada2 
+
+#Primeras 2 gráficas están mal, está mostrando la distribución de los top 5 phylums GLOBALES, 
+#no de los top 5 phylums por muestra
+
+###Intento 3
+#Para convertir a un data.frame, para después poder graficar, se utiliza psmelt 
+#https://www.bioconductor.org/packages/devel/bioc/vignettes/phyloseq/inst/doc/phyloseq-FAQ.html
+df_phylum <- psmelt(gp_apil)
+
+#Seleccionar top 5 phylums POR MUESTRA
+df_top_phyla <- df_phylum %>%
+  group_by(Sample) %>%
+  slice_max(order_by = Abundance, n = 5) %>%
+  ungroup()
+
+#Crear stacked bar graph
+gp_phylum_apilada3 <- ggplot(df_top_phyla, aes(x = Sample, y = Abundance, fill = Phylum)) +
+  geom_bar(stat = "identity", position = "stack") +
+  facet_wrap(~ SampleType, scales = "free_x") +
+  labs(title = "Top 5 Phylum por muestra", x = "Muestras", y = "Abundancia")
+gp_phylum_apilada3
+
 
 #Guardar en un pdf 
 pdf("Figuras/globalpatterns_stacked.pdf", width = 13, height = 8)
-gp_phylum_apilada2
-dev.off
+gp_phylum_apilada3
+dev.off ()
+
+
+
 
 ################
 #     Diversidad Beta
