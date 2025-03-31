@@ -18,8 +18,10 @@ library(dplyr)
 library(data.table)
 library(tidyverse)  
 ```
+# Dietswap 
+######## Script comentado se encuentra en la carpeta Script
 
-# Características del objeto phyloseq
+## Características del objeto phyloseq
 
 ```{r}
 data("dietswap", package = "microbiome")
@@ -62,7 +64,7 @@ posible viisualizar las variables, que incluyen:
 sample_variables (ps)
 ```
 
-# Curvas de rarefacción
+## Curvas de rarefacción
 
 ```{r}
 library(ggplot2)
@@ -118,7 +120,7 @@ Las curvas nos indican que hubo un muestreo suficiente.
 2.  ¿Hay muestras que deberían descartarse por bajo conteo? 
 Sí, según la curva de rarefacción, se puede ver que la muestra 56 es la única no llega a una asíntota. Lo que corrobora lo mostrado en la tabla que ordena los conteos de lectura más bajos, donde vemos que la muestra 56 tiene la menor cantidad de lecturas con 1,776 lecturas, por lo que puede descartarse por el bajo conteo de lecturas. 
 
-# Diversidad Alpha
+## Diversidad Alpha
 
 ```{r}
 #Riqueza observada + Índice de Shannon + Simpson 
@@ -145,7 +147,7 @@ Con una media del índice de Simpson mayor para el grupo AAM, la gráfica sugier
 Sí es posible observar diferencias entre los grupos, particularmente en la distribución de las especies, donde el grupo AAM tiene una menor riqueza, pero una mayor unuiformidad en la distribución de estas especies, mientras que el grupo AFR tiene una mayor riqueza de especies, pero algunas de estas son más predominantes qye otras. Esto deja espacio para inqurir más sobre el experimento, ya que  sería interesante evaluar estas medidas no sólo por nacionalidad, sino por grupo de IMC o BMI, e incluso por timepoint, para evaluar estos cambios en la equidad y distribución a lo largo de las 2 semanas del transcurso del experimento. 
 
 
-# Filtrado y Transformación 
+## Filtrado y Transformación 
 
 Código tomado y adaptado de: <https://joey711.github.io/phyloseq/preprocess.html> y
 <https://web.stanford.edu/class/bios221/labs/phyloseq/lab_phyloseq.html?ut>
@@ -159,7 +161,7 @@ ps_filtr
 
 ```
 
-# Diversidad Beta
+## Diversidad Beta
 
 ```{r}
 # Distancia de Bray Curtis & análisis de coordenadas principales (PCoA)
@@ -181,7 +183,7 @@ Sí, hay una visible separación de los grupos entre africanos y afro-americanos
 
 Estas diferencias pueden atribuirse a la dieta que se realizó, donde hubo un intercambio de una dieta alta en friba y baja en grasas (dieta africana) y una dieta baja en fibra y alta en grasas (dieta americana) entre los grupos.  No obstante, la dieta no puede ser la única variable, ya que también puede tomarse en cuenta el BMI de los individuos. 
 
-# Gráfica Rank-abundance
+## Gráfica Rank-abundance
 ```{r}
 # Abundancia totalde cada uno de los taxones
 abund_total <- taxa_sums(ps_sin) #uso de taxa_sums como cuando se eliminaron los taxones menores a 1
@@ -195,7 +197,7 @@ rank_df <- data.frame (
   Especies = secuencia_taxones
 )
 
-# Curva de rarefacción 
+# Curva de rango-abundancia 
 rank_abundance <- ggplot (rank_df, aes(x = Especies, y = Abundancia, colour = Especies)) +
   geom_point() + geom_line() +  #puntos y línea
   labs( title = "Rank-abundance", x = "Spp", y = "Abundance")
@@ -214,7 +216,7 @@ La comunidad cuenta con dominancia de pocas especies, de las que destacan  Prevo
 La comunidad parece seguir una distribución de cola larga, donde hay dominancia de pocas especies y especies raras de poca abundancia. 
 
 
-# Gráficas apiladas de abundancia por taxón
+## Gráficas apiladas de abundancia por taxón
 
 ```{r}
 phylum_apliada <- plot_bar(ps_sin, x = "nationality", y = "Abundance", fill = "Phylum") + 
@@ -340,7 +342,7 @@ Sugieren que para cada ambiente existe un microbiota bacteriana distinta, con di
 Código realizado mediante la consulta de 
 [sitio1](https://www.bioconductor.org/packages/devel/bioc/vignettes/phyloseq/inst/doc/phyloseq-analysis.html) y [sitio2](https://forum.qiime2.org/t/pcoa-plots-with-confidence-ellipsoids/11612/2)
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, results='hide'}
 #Matriz de distancia utilizando el objeto filtrado 
 gp_dm = ordinate(gp_filtr, method ="PCoA", distance = "bray")
 #Plot
@@ -373,7 +375,7 @@ A fin de determinar si esta falta de datos se dio por causa del filtrado, se rea
 
 Algún solapamiento entre tipos de muestras, como el que ocurre entre muestras de océano y agua dulce, sugiere que ambos ambientes comparten ciertas características en cuanto a la composición bacteriana, que podría atribuirse a condiciones ambientales similares. 
 
-En cuanto al `stress_plot`, este se realizó únicamente sobre la base de datos filtrada, de donde se obtuvo una gráfica donde para los puntos azules se calcula una R^2 mayor a 0.9, lo que indica que el ajuste no métrico coincide con las disimilitudes observables. No obstante, en el ajuste lineal indicado por la línea roja es posible ver que, aunque es menor que la R^2 perteneciente a al ajuste no métrico, sugiriendo una aproximación razonable de la relación entre las distancias. 
+En cuanto al `stressplot`, este se realizó únicamente sobre la base de datos filtrada, de donde se obtuvo una gráfica donde para los puntos azules se calcula una R^2 mayor a 0.9, lo que indica que el ajuste no métrico coincide con las disimilitudes observables. No obstante, en el ajuste lineal indicado por la línea roja es posible ver que, aunque es menor que la R^2 perteneciente a al ajuste no métrico, sugiriendo una aproximación razonable de la relación entre las distancias. 
 
 
 
