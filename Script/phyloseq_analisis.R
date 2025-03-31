@@ -4,7 +4,8 @@ library(microbiome)
 library(ggplot2)
 library(vegan)
 library(dplyr)
-            
+library(data.table)
+
             ###################################
 #####       Características del objeto phyloseq         #####
             ###################################
@@ -20,13 +21,11 @@ ntaxa(ps)
 #¿Qué variables están disponibles en los metadatos de las muestras?
 sample_variables (ps)
 
+sample_data(ps)$subject
 
                   #####################
 #####             Curvas de rarefacción               #####
                   #####################
-#Cargar paquetes
-library(ggplot2)
-library(data.table)
 
 #Eliminar taxones menores a 1
 ps_sin <- prune_taxa (taxa_sums(ps) > 1, ps) 
@@ -133,8 +132,7 @@ ps_filtr
 ps_pcoa = ordinate (ps_filtr, method="PCoA", distance = "bray")
 ps_pcoa
 
-#De (p12 <- plot_ordination(GlobalPatterns, GloPa.pcoa, "samples", color="SampleType") + 
-#geom_point(size=5) + geom_path() + scale_colour_hue(guide = FALSE) )
+
 #De: plot_ordination(my.physeq, my.ord, color="myFavoriteVarible")
 p_ordin <- plot_ordination (ps_filtr, ps_pcoa, color="nationality")
 p_ordin
@@ -190,6 +188,11 @@ pdf("Figuras/abundancias_apiladas.pdf", width = 13, height = 8)
 phylum_apliada
 dev.off()
 
+# Grupo que domina según categoría 
+plot_frequencies (x = sample_data(ps_sin), 
+                 Groups = "bmi_group", Factor = "nationality") +
+  labs(fill = "Nationality") 
+
 
 
       ############################################
@@ -204,32 +207,91 @@ gp <- GlobalPatterns
 
 #Filtrar taxa con menos de 5 lecturas en al menos 20% de las muestras
 gp_filtr <- filter_taxa(gp, function(x) sum(x > 5) > (0.2 * length(x)), TRUE)
-gp_filtr
 
 #Aglomerar a nivel de Familia
+gp_glom = tax_glom(gp_filtr, "Family")
+
 
 #Transformar a abundancias relativas (%)
 gp_rel  = transform_sample_counts (gp_filtr, function(x) x / sum(x) )
 
 #Subset para incluir solo muestras de: Soil, Feces, Skin
+#gp_subset1 <- sample_data(gp_filtr)$muestras <- factor (get_variable(gp_filtr, "SampleType") %in% c("Soil", "Feces", "Skin"))
+#gp_subset1 
+#tomé este código de https://web.stanford.edu/class/bios221/labs/phyloseq/lab_phyloseq.html?utm
+#sólo muestra valores de TRUE o FALSE, no hay dmiensiones de taxa o samples como los otros, no me sirve
 
-#Muestra las dimensiones del objeto resultante
-
+#Modificar el código para seleccionar únicamente las muestras "Soil", "Feces", "Skin"
+#Código tomado de: https://forum.qiime2.org/t/subsetting-specific-samples-from-a-phyloseq-object/22361 
+library(tidyverse)  #Cargué está librería para que reconozca %>%
+gp_subset <- gp_filtr %>% subset_samples(SampleType %in% c("Soil", "Feces", "Skin"))
+gp_subset
 
 ################
 #     Diversidad Alfa
 #################
 
-#Calcular 3 índices de diversidad alfa ( Shannon , Simpson , Observed )
-#Crear boxplots comparativos de los índices entre tipos de muestra
-#Realizar prueba estadística (Kruskal-Wallis) para diferencias entre grupos
+# Calcular 3 índices de diversidad alfa ( Shannon , Simpson , Observed )
+alpha_divgp <- estimate_richness (gp_filtr, measures = c("Observed", "Shannon", "Simpson" ))
+
+# Crear boxplots comparativos de los índices entre tipos de muestra
+sample_variables(gp_filtr) #ver que variable sutilizo para graficar 
+#Graficar boxplot
+gp_alpha_box <- plot_richness(gp_subset, x = "SampleType", color = "SampleType" , measures = c("Observed", "Shannon", "Simpson" )) +
+  geom_boxplot()
+
+#Guardar div alpha en un pdf
+pdf("Figuras/globalpatterns_div_alpha.pdf", width = 13, height = 8)
+gp_alpha_box
+dev.off ()
 
 
 ################
 #     Curvas de rango-abundancia
 #################
-#Crear gráficas de rango-abundancia para cada tipo de muestra Usar escala log10 en Y Comparar patrones
-#entre ambientes
+# Crear gráficas de rango-abundancia para cada tipo de muestra Usar escala log10 en Y Comparar patrones entre ambientes
+
+#Generar tabla (código tomado del tutorial)
+gp_lecturas <- data.table(as(sample_data(gp_filtr), "data.frame"),
+                              TotalReads = sample_sums(gp_filtr), 
+                              keep.rownames = TRUE) #Crea una tabla
+setnames (gp_lecturas, "rn", "SampleID")
+
+str(gp_lecturas)
+
+head(gp_lecturas[order(gp_lecturas$TotalReads), c("SampleID", "TotalReads")])
+
+otu_gp <- otu_table(gp_filtr)
+otu_gp <- as.data.frame(t(otu_gp))
+sample_names <- rownames(otu_gp)
+
+
+setnames(gp_lecturas, "rn", "SampleID")
+
+gp_rc <- rarecurve(otu_gp, step = 200)
+
+#gp_rc <- rarecurve(otu_gp, step = 200) %>% left_join(gp_lecturas, by = "SampleID")
+
+gp_rarecurve <- ggplot (gp_rc) + 
+  geom_line(aes(x = Sample, y = Species, group = Sample, colour = SampleType)) + 
+  theme_bw() + 
+  labs (title = "Curva de Rarefacción por Tipo de Muestra")
+
+gp_rarecurve
+
+
+"SampleType"
+sample_variables (gp_filtr)
+sample_data(gp_filtr)$SampleType
+
+##Para convertir a un data.frame, para después poder graficar, se utiliza psmelt 
+#https://www.bioconductor.org/packages/devel/bioc/vignettes/phyloseq/inst/doc/phyloseq-FAQ.html
+
+gp_df <- psmelt(gp_solo_top)
+
+
+
+#Código adaptado de https://stackoverflow.com/questions/47234809/coloring-rarefaction-curve-lines-by-metadata-vegan-package-phyloseq-package
 
 
 ################
@@ -241,6 +303,36 @@ gp_rel  = transform_sample_counts (gp_filtr, function(x) x / sum(x) )
 #Agrupar por tipo de muestra
 #Usar facet_wrap para comparar ambientes
 
+# Del gp filtrado, seleccionar únicamente los phylums
+gp_apil = tax_glom(gp_filtr, "Phylum")
+# Identificar 5 Phylum mayores por abundancia
+gp_top_phylum <- names (sort (taxa_sums(gp_apil), decreasing = TRUE)[1:5])
+# Quedarse con los únicos 5 phylums más abundantes
+gp_solo_top <- prune_taxa (gp_top_phylum, gp_apil)
+
+#Crear gráfico apilado
+gp_phylum_apilada <- plot_bar(gp_solo_top, x = "Sample", y = "Abundance", fill = "Phylum") +
+  geom_bar(aes(color = Phylum, fill = Phylum), stat = "identity", position = "stack") +
+  labs(title = "Top 5 Phylums por muestra",
+       x = "Muestras",
+       y = "Abundancia")
+
+gp_phylum_apilada
+
+
+#Adaptar gráfica con facet_wrap
+gp_phylum_apilada2 <- plot_bar(gp_solo_top, x = "Sample", y = "Abundance", fill = "Phylum") +
+  geom_bar(aes(color = Phylum, fill = Phylum), stat = "identity", position = "stack") +
+  facet_wrap(~ SampleType, scales = "free_x") +
+  labs(title = "Top 5 Phylums por muestra",
+       x = "Muestras",
+       y = "Abundancia")
+gp_phylum_apilada2
+
+#Guardar en un pdf 
+pdf("Figuras/globalpatterns_stacked.pdf", width = 13, height = 8)
+gp_phylum_apilada2
+dev.off
 
 ################
 #     Diversidad Beta
@@ -250,9 +342,27 @@ gp_rel  = transform_sample_counts (gp_filtr, function(x) x / sum(x) )
 #Visualizar con:
   #Colores por tipo de muestra
   #Elipses de confianza del 95%
-  #Incluir stress plot
-#Realizar PERMANOVA para diferencias entre grupos
+
+#Código de: https://www.bioconductor.org/packages/devel/bioc/vignettes/phyloseq/inst/doc/phyloseq-analysis.html
+# y https://forum.qiime2.org/t/pcoa-plots-with-confidence-ellipsoids/11612/2
+gp_dm = ordinate(gp_filtr, method ="PCoA", distance = "bray")
+
+gp_pcoa <- plot_ordination (gp_filtr, gp_dm, "samples", color="SampleType") + 
+  geom_point(size=5) + geom_path() + scale_colour_hue() + stat_ellipse(level = 0.95)
+gp_pcoa
 
 
+#Matriz de distancia sin filtrado 
+gp_dm2 = ordinate(GlobalPatterns, method ="PCoA", distance = "bray")
+#Plot utilizando la base de datos Global Patterns sin filtrado
+gp_pcoa2 <- plot_ordination (GlobalPatterns, gp_dm2, "samples", color="SampleType") + 
+  geom_point(size=5) + geom_path() + scale_colour_hue() + stat_ellipse(level = 0.95)
+gp_pcoa2
+
+##  Stress plot del objeto filtrado 
+#Convertir a lista porque sino es reconocido por metaMDS
+gp_dm_lista <- distance(gp_filtr, method = "bray")
+gp_nmds <- metaMDS(gp_dm_lista, k = 2)
+stressplot(gp_nmds)
 
 

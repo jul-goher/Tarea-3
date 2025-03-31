@@ -9,7 +9,14 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+#Cargar librerias
+library(phyloseq)
+library(microbiome)
+library(ggplot2)
+library(vegan)
+library(dplyr)
+library(data.table)
+library(tidyverse)  
 ```
 
 # Características del objeto phyloseq
@@ -42,13 +49,13 @@ ntaxa (ps)
 Mediante el uso de 'sample_variables ()' sobre el objeto phylosq es
 posible viisualizar las variables, que incluyen:
 
--   subject
+-   subject (identificadores de 3 letras, ej., azl, byn, nms, etc.)
 -   sex (male, female)
 -   nationality (AAM O AFR)
--   group 
--   sample
+-   group (DI, HE, ED, DI)
+-   sample (1-122)
 -   timepoint (1-6)
--   timepoint.within.group
+-   timepoint.within.group (1 y 2)
 -   bmi_group (lean, overweight, obese)
 
 ```{r}
@@ -97,8 +104,7 @@ Dejé el código de la curva de rarefacción como un comentario con # ya que el 
 ```
 
 
-<img src = "/Users/julie/OneDrive/R/Genómica Funcional/Tarea-3/Figuras/curva_rarefaccion.png" alt = "Curva de rarefacción" width="500" height="300">
-
+![Curva de rarefacción](Figuras/curva_rarefaccion.pdf)
 
 
 1.  ¿Qué indican estas curvas?
@@ -222,27 +228,127 @@ print(phylum_apliada)
 
 Sí, los Phylum Bacteroidetes y Firmicutes predominan para ambos grupos de nacionalidad. En cuanto al phylum, en este gráfico no existe demasiada distinción, puesto que los mismos phylums dominan entre ambas nacionalidades. No obstante, una diferencia notable es que hay una mayor abundancia para el grupo AAM que en el grupo AFR. 
 
+Otro uso de la gráfica apliada, además de distingir por abundancia de taxones, también sirve para ver cómo los grupos dominan una cierta [categoría] <https://rpubs.com/nabiilahardini/microbiome> 
+
+```{r}
+plot_frequencies (x = sample_data(ps_sin), 
+                 Groups = "bmi_group", Factor = "nationality") +
+  labs(fill = "Nationality") 
+
+```
+Aquí, podemos notar que el grupo AFR tiene una mayor cantidad de individuos delgados, mientras que las categorías de sobrepeso y obesidad están mayormente ocupadas por individuos AAM. 
+
+
 # GlobalPatterns
 ## Preprocesamiento 
+Codigo realizado con apoyo de sitios de [internet] <https://forum.qiime2.org/t/subsetting-specific-samples-from-a-phyloseq-object/22361> <https://joey711.github.io/phyloseq/preprocess.html>
+
 ```{r}
+data("GlobalPatterns")
+gp <- GlobalPatterns
+
+#Filtrar taxa con menos de 5 lecturas en al menos 20% de las muestras
+gp_filtr <- filter_taxa(gp, function(x) sum(x > 5) > (0.2 * length(x)), TRUE)
+
+#Aglomerar a nivel de Familia
+gp_glom = tax_glom(gp_filtr, "Family")
+
+
+#Transformar a abundancias relativas (%)
+gp_rel  = transform_sample_counts (gp_filtr, function(x) x / sum(x) )
+
+#Subset para incluir solo muestras de: Soil, Feces, Skin
+#Código tomado de: https://forum.qiime2.org/t/subsetting-specific-samples-from-a-phyloseq-object/22361 
+#Cargué librería tidyverse para que reconozca %>%
+gp_subset <- gp_filtr %>% subset_samples(SampleType %in% c("Soil", "Feces", "Skin"))
+
+#Dimensiones del objeto
+print (gp_subset)
 
 ```
 
 
 ## Diversidad Alfa
+```{r}
+# Calcular 3 índices de diversidad alfa ( Shannon , Simpson , Observed )
+alpha_divgp <- estimate_richness (gp_filtr, measures = c("Observed", "Shannon", "Simpson" ))
+
+# Crear boxplots comparativos de los índices entre tipos de muestra
+sample_variables(gp_filtr) #ver que variable sutilizo para graficar 
+plot_richness(gp_subset, x = "SampleType", color = "SampleType" , measures = c("Observed", "Shannon", "Simpson" )) +
+  geom_boxplot()
+
+```
 
 * ¿Qué ambiente muestra mayor diversidad alfa? ¿A qué factores podría deberse?
 
 
 ## Curvas de rango-abundancia
+```{r}
+
+
+```
 
 * ¿Qué patrón de dominancia taxonómica muestran las curvas de rango-abundancia?
 
 ## Perfil taxonómico
+```{r}
+# Del gp filtrado, seleccionar únicamente los phylums
+gp_apil = tax_glom(gp_filtr, "Phylum")
+# Identificar 5 Phylum mayores por abundancia
+gp_top_phylum <- names (sort (taxa_sums(gp_apil), decreasing = TRUE)[1:5])
+# Quedarse con los únicos 5 phylums más abundantes
+gp_solo_top <- prune_taxa (gp_top_phylum, gp_apil)
+
+#Adaptar gráfica con facet_wrap
+gp_phylum_apilada2 <- plot_bar(gp_solo_top, x = "Sample", y = "Abundance", fill = "Phylum") +
+  geom_bar(aes(color = Phylum, fill = Phylum), stat = "identity", position = "stack") +
+  facet_wrap(~ SampleType, scales = "free_x") +
+  labs(title = "Top 5 Phylums por muestra",
+       x = "Muestras",
+       y = "Abundancia")
+
+```
+
 * ¿Qué phyla son dominantes en cada ambiente y qué implicaciones ecológicas sugieren?
 
 
 ## Diversidad Beta
+```{r}
+#Código de: https://www.bioconductor.org/packages/devel/bioc/vignettes/phyloseq/inst/doc/phyloseq-analysis.html
+# y https://forum.qiime2.org/t/pcoa-plots-with-confidence-ellipsoids/11612/2
+gp_dm = ordinate(gp_filtr, method ="PCoA", distance = "bray")
+
+gp_pcoa <- plot_ordination (gp_filtr, gp_dm, "samples", color="SampleType") + 
+  geom_point(size=5) + geom_path() + scale_colour_hue() + stat_ellipse(level = 0.95)
+gp_pcoa
+
+
+#Matriz de distancia sin filtrado 
+gp_dm2 = ordinate(GlobalPatterns, method ="PCoA", distance = "bray")
+#Plot utilizando la base de datos Global Patterns sin filtrado
+gp_pcoa2 <- plot_ordination (GlobalPatterns, gp_dm2, "samples", color="SampleType") + 
+  geom_point(size=5) + geom_path() + scale_colour_hue() + stat_ellipse(level = 0.95)
+gp_pcoa2
+
+##  Stress plot del objeto filtrado 
+#Convertir a lista porque sino es reconocido por metaMDS
+gp_dm_lista <- distance(gp_filtr, method = "bray")
+gp_nmds <- metaMDS(gp_dm_lista, k = 2)
+stressplot(gp_nmds)
+
+
+```
 
 * ¿Qué se observa en la ordenación PCoA respecto a similitudes entre muestras?
+
+
+
+
+
+
+### Sitios utilizados para el código 
+https://rdrr.io/bioc/phyloseq/man/subset_samples-methods.html
+https://web.stanford.edu/class/bios221/labs/phyloseq/lab_phyloseq.html?utm
+
 
