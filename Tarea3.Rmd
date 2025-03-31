@@ -19,7 +19,7 @@ library(data.table)
 library(tidyverse)  
 ```
 # Dietswap 
-######## Script comentado se encuentra en la carpeta Script
+######## Script phyloseq_analisis comentado se encuentra en la carpeta Script
 
 ## Características del objeto phyloseq
 
