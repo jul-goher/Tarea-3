@@ -161,15 +161,15 @@ rank_df <- data.frame (
 )
 
 
-# Curva de rarefacción 
+# Curva de rango-abundancia 
 rank_abundance <- ggplot (rank_df, aes(x = Especies, y = Abundancia, colour = Especies)) +
   geom_point() + geom_line() +  #puntos y línea
   labs( title = "Rank-abundance", x = "Spp", y = "Abundance")
 
 print(rank_abundance)
 
-
-pdf("Figuras/rank_abundance.pdf", width = 13, height = 8)
+#Guardar objeto en pdf
+pdf("Figuras/global_patterns_rank_abundance.pdf", width = 13, height = 8)
 rank_abundance
 dev.off()
 
@@ -254,53 +254,43 @@ dev.off ()
 #################
 # Crear gráficas de rango-abundancia para cada tipo de muestra Usar escala log10 en Y Comparar patrones entre ambientes
 
-#Generar tabla (código tomado del tutorial)
-gp_lecturas <- data.table(as(sample_data(gp_filtr), "data.frame"),
-                              TotalReads = sample_sums(gp_filtr), 
-                              keep.rownames = TRUE) #Crea una tabla
-setnames (gp_lecturas, "rn", "SampleID")
-
-str(gp_lecturas)
-
-head(gp_lecturas[order(gp_lecturas$TotalReads), c("SampleID", "TotalReads")])
-
-otu_gp <- otu_table(gp_filtr)
-otu_gp <- as.data.frame(t(otu_gp))
-sample_names <- rownames(otu_gp)
-
-
-setnames(gp_lecturas, "rn", "SampleID")
-
-gp_rc <- rarecurve(otu_gp, step = 200)
-
-#gp_rc <- rarecurve(otu_gp, step = 200) %>% left_join(gp_lecturas, by = "SampleID")
-
-gp_rarecurve <- ggplot (gp_rc) + 
-  geom_line(aes(x = Sample, y = Species, group = Sample, colour = SampleType)) + 
-  theme_bw() + 
-  labs (title = "Curva de Rarefacción")
-
-gp_rarecurve
-
-
 sample_variables (gp_filtr)
 sample_data(gp_filtr)$SampleType
 
-##Para convertir a un data.frame, para después poder graficar, se utiliza psmelt 
-#https://www.bioconductor.org/packages/devel/bioc/vignettes/phyloseq/inst/doc/phyloseq-FAQ.html
-
-gp_df <- psmelt(gp_solo_top)
-
-#Código guía: https://stackoverflow.com/questions/47234809/coloring-rarefaction-curve-lines-by-metadata-vegan-package-phyloseq-package
-
-
 ## Curvas de rango-abundancia
 ```{r}
-
+#* ¿Qué patrón de dominancia taxonómica muestran las curvas de rango-abundancia?
+# No me sale :p
 
 ```
 
-#* ¿Qué patrón de dominancia taxonómica muestran las curvas de rango-abundancia?
+# Abundancia totalde cada uno de los taxones
+gp_abund_total <- taxa_sums(gp_filtr) #uso de taxa_sums como cuando se eliminaron los taxones menores a 1
+# Orden de mayor a menor
+gp_abundancias_ordenadas <- sort (abund_total, decreasing = TRUE)
+gp_abundancias_ordenadas
+# Generar números para cada uno de los taxones,según la longitud de abund_total
+gp_secuencia_taxones <- seq_along (abund_total)
+# Crear un data.frame del objecto phyloseq 
+gp_rank_df <- data.frame (
+  Abundancia = abundancias_ordenadas, 
+  Especies = secuencia_taxones
+)
+
+
+# Curva de rarefacción 
+rank_abundance <- ggplot (gp_rank_df, aes(x = Especies, y = Abundancia, colour = SampleType)) +
+  geom_point() + geom_line() +  #puntos y línea
+  labs( title = "Rank-abundance", x = "Spp", y = "Abundance")
+
+print(rank_abundance)
+
+
+#Código nuevo 
+gp_feces <- subset_samples (gp_subset, SampleType == "Feces") #utilizo subset generado previamente 
+
+
+
 
 
 
