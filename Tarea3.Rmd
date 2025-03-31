@@ -367,6 +367,7 @@ print (skin_ra)
 ```
 
 * ¿Qué patrón de dominancia taxonómica muestran las curvas de rango-abundancia?
+
 Las 3 gráficas parecen seguir un patrón de distribución de cola larga, con pocas especies dominantes y varias especies raras. Demuestra una gran diversidad de especies.   
 
 

@@ -234,6 +234,9 @@ gp_subset
 # Calcular 3 índices de diversidad alfa ( Shannon , Simpson , Observed )
 alpha_divgp <- estimate_richness (gp_filtr, measures = c("Observed", "Shannon", "Simpson" ))
 
+#Guardar div. alpha en csv
+write.csv(alpha_divgp, file = "Data/gp_div_alpha.csv", row.names = TRUE)
+
 # Crear boxplots comparativos de los índices entre tipos de muestra
 sample_variables(gp_filtr) #ver que variable sutilizo para graficar 
 #Graficar boxplot
