@@ -241,9 +241,7 @@ Aquí, podemos notar que el grupo AFR tiene una mayor cantidad de individuos del
 
 # GlobalPatterns
 ## Preprocesamiento 
-Codigo realizado consultando
-* [sitio1](https://forum.qiime2.org/t/subsetting-specific-samples-from-a-phyloseq-object/2236)
-* [sitio2]((https://joey711.github.io/phyloseq/preprocess.html)
+Codigo realizado consultando [sitio1](https://forum.qiime2.org/t/subsetting-specific-samples-from-a-phyloseq-object/2236) y [sitio2](https://joey711.github.io/phyloseq/preprocess.html)
 
 ```{r}
 data("GlobalPatterns")
@@ -292,13 +290,6 @@ Podemos ver que las muestras pertenecientes al suelo demuestran la mayor riqueza
 La gran diversidad en un ambiente de suelo es atribuida a una pletora de factores, incluida la vegetación presente en el suelo junto con la materia orgánica en descomposición, que propicia un ambiente apto para una variedad de microorganismos, en este caso, bacterias, considerando que los datos son provenientes de un estudio de diversidad de 16sRNA realizado por Caporaso y colaboradores ([2010](https://doi.org/10.1073/pnas.100008010)). Algunos otros factores que influyen en las poblaciones microbianas del suelo incluyen el pH. la temperatura, la humedad, y claro, la intervención humana, donde las prácticas humanas pueden promover la diversidad o irrumpir con el ecosistema. 
 
 
-## Curvas de rango-abundancia
-```{r}
-
-
-```
-
-* ¿Qué patrón de dominancia taxonómica muestran las curvas de rango-abundancia?
 
 ## Perfil taxonómico
 ```{r}
@@ -328,24 +319,37 @@ gp_phylum_apilada3
 
 * ¿Qué phyla son dominantes en cada ambiente y qué implicaciones ecológicas sugieren?
 
+_Especies dominantes_ 
+
+* Heces - Actinobacteria
+* Agua dulce - Cianobacteria y Actinobacteria 
+* Agua dulce de arroyo - Cianobacteria
+* Océano - Bacterioidetes y Proteobacteria
+* Sedimento - Proteobacteria
+* Piel - Firmicutes
+* Suelo - Proteobacteria y Verrucomicrobia 
+* Lengua - Proteobacteria
+* Mock - Actinobacteria
 
 
-Sugieren que para cada 
-
+Sugieren que para cada ambiente existe un microbiota bacteriana distinta, con diversas comunidades microbianas, donde cada una refleja la capacidad de los phylums de sobrevivir y adaptarse al ambiente donde se encuentra y busca proliferar. Dependiendo del ambiente, los diferentes phylums desarrollan funciones particulares en su respectuvo ambiente, como la generación una capa de protección contra otros microbios por el phylum Firmicutes que puede ser encontrado en la piel o las cianobacterias, que están asociadas a las algas por su habilidad fotosintética y por lo tanto predominan en ambientes acuáticos. Otro ejemplo de las diversas funciones que llevan a cabo estps phylums incluyen la degradación de materia orgánica, como los Bacteroidetes, Verrucomicrobia y las Actinobacterias, promoviendo un ciclo de nutrientes donde estos pueden ser utilizados. Esta acción de descomposición deja que existan nutrientes facilmente disponibles en el ambiente, contribuyendo al mantenimiento del ecosistema.  
 
 
 ## Diversidad Beta
+
 Código realizado mediante la consulta de 
 [sitio1](https://www.bioconductor.org/packages/devel/bioc/vignettes/phyloseq/inst/doc/phyloseq-analysis.html) y [sitio2](https://forum.qiime2.org/t/pcoa-plots-with-confidence-ellipsoids/11612/2)
-```{r}
-gp_dm = ordinate(gp_filtr, method ="PCoA", distance = "bray")
 
+```{r, message=FALSE, warning=FALSE}
+#Matriz de distancia utilizando el objeto filtrado 
+gp_dm = ordinate(gp_filtr, method ="PCoA", distance = "bray")
+#Plot
 gp_pcoa <- plot_ordination (gp_filtr, gp_dm, "samples", color="SampleType") + 
   geom_point(size=5) + geom_path() + scale_colour_hue() + stat_ellipse(level = 0.95)
 gp_pcoa
 
 
-#Matriz de distancia sin filtrado 
+#Matriz de distancia Global Patterns 
 gp_dm2 = ordinate(GlobalPatterns, method ="PCoA", distance = "bray")
 #Plot utilizando la base de datos Global Patterns sin filtrado
 gp_pcoa2 <- plot_ordination (GlobalPatterns, gp_dm2, "samples", color="SampleType") + 
@@ -363,13 +367,13 @@ stressplot(gp_nmds)
 
 * ¿Qué se observa en la ordenación PCoA respecto a similitudes entre muestras?
 
+Se realizaron 2 PcOA, el primero utilizando el objeto proveniente de GP filtrado para incluir 5 lecturas en al menos 20% de las muestras. De este plot, la consola arroja varios mensajes indicando que hay muy pocos puntos para generar una elipse, por lo que únicamente se forma una elipse para los puntos generados de las muestras de heces, puesto que para los demás tipos de muestra no hay suficiente puntos de datos o _clusters_ para ajustar una elipse.
 
+A fin de determinar si esta falta de datos se dio por causa del filtrado, se realizó el segundo PcOA, donde se utilizó directamente el objeto _GlobalPatterns_ de phyloseq. De este PcOA se obtuvieron resultados similares en cuanto a la formación del elipse, que de nuevo sólo se formó para el tipo de muestra de heces. Esto nos lleva a conclusiones similares para cada PCoA, donde se indica una menor variabilidad entre las muestras de heces a comparación de otros ambientes que demuestran una mayor separación entre puntos. Esta dispersión a su vez sugiere una mayor variabilidad en las comunidades bacterianas que los conforman, lo que podría darse debido a factores ambientales que afecten su composición, como el pH, temperatura, humedad, etc. 
 
+Algún solapamiento entre tipos de muestras, como el que ocurre entre muestras de océano y agua dulce, sugiere que ambos ambientes comparten ciertas características en cuanto a la composición bacteriana, que podría atribuirse a condiciones ambientales similares. 
 
+En cuanto al `stress_plot`, este se realizó únicamente sobre la base de datos filtrada, de donde se obtuvo una gráfica donde para los puntos azules se calcula una R^2 mayor a 0.9, lo que indica que el ajuste no métrico coincide con las disimilitudes observables. No obstante, en el ajuste lineal indicado por la línea roja es posible ver que, aunque es menor que la R^2 perteneciente a al ajuste no métrico, sugiriendo una aproximación razonable de la relación entre las distancias. 
 
-
-### Sitios utilizados para el código 
-https://rdrr.io/bioc/phyloseq/man/subset_samples-methods.html
-https://web.stanford.edu/class/bios221/labs/phyloseq/lab_phyloseq.html?utm
 
 

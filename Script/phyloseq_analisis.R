@@ -278,12 +278,11 @@ gp_rc <- rarecurve(otu_gp, step = 200)
 gp_rarecurve <- ggplot (gp_rc) + 
   geom_line(aes(x = Sample, y = Species, group = Sample, colour = SampleType)) + 
   theme_bw() + 
-  labs (title = "Curva de Rarefacción por Tipo de Muestra")
+  labs (title = "Curva de Rarefacción")
 
 gp_rarecurve
 
 
-"SampleType"
 sample_variables (gp_filtr)
 sample_data(gp_filtr)$SampleType
 
@@ -292,9 +291,17 @@ sample_data(gp_filtr)$SampleType
 
 gp_df <- psmelt(gp_solo_top)
 
+#Código guía: https://stackoverflow.com/questions/47234809/coloring-rarefaction-curve-lines-by-metadata-vegan-package-phyloseq-package
 
 
-#Código adaptado de https://stackoverflow.com/questions/47234809/coloring-rarefaction-curve-lines-by-metadata-vegan-package-phyloseq-package
+## Curvas de rango-abundancia
+```{r}
+
+
+```
+
+#* ¿Qué patrón de dominancia taxonómica muestran las curvas de rango-abundancia?
+
 
 
 ################
@@ -361,8 +368,6 @@ gp_phylum_apilada3
 dev.off ()
 
 
-
-
 ################
 #     Diversidad Beta
 #################
@@ -374,6 +379,7 @@ dev.off ()
 
 #Código de: https://www.bioconductor.org/packages/devel/bioc/vignettes/phyloseq/inst/doc/phyloseq-analysis.html
 # y https://forum.qiime2.org/t/pcoa-plots-with-confidence-ellipsoids/11612/2
+
 gp_dm = ordinate(gp_filtr, method ="PCoA", distance = "bray")
 
 gp_pcoa <- plot_ordination (gp_filtr, gp_dm, "samples", color="SampleType") + 
